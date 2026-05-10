@@ -1,0 +1,53 @@
+{% extends "admin/base.html" %}
+{% block title %}Clientes{% endblock %}
+{% block page_title %}Clientes{% endblock %}
+{% block page_sub %}S/{{ "%.0f"|format(total_revenue) }}/mes en mensualidades activas{% endblock %}
+{% block topbar_actions %}<button class="btn btn-primary btn-sm" onclick="openModal('m-client')"><i class="fa-solid fa-plus"></i> Nuevo cliente</button>{% endblock %}
+{% block content %}
+<div style="display:flex;gap:8px;margin-bottom:14px;"><input class="fc" id="srch" placeholder="🔍 Buscar cliente..." oninput="filterTbl()" style="width:220px;"/></div>
+<div class="card">
+  <div class="tbl-wrap">
+    <table id="tbl">
+      <thead><tr><th>Cliente</th><th>Negocio</th><th>Agente</th><th>Fee/mes</th><th>Estado</th><th>Instalación</th><th>Acciones</th></tr></thead>
+      <tbody>
+        {% for c in clients %}
+        <tr>
+          <td><div style="display:flex;align-items:center;gap:7px;"><div style="width:26px;height:26px;border-radius:50%;background:{{ c.agent_color or '#6366f1' }};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">{{ c.name[0].upper() }}</div><div><div style="color:var(--text);font-weight:500;">{{ c.name }}</div><div style="font-size:11px;color:var(--text3);">{{ c.phone }}</div></div></div></td>
+          <td>{{ c.business }}</td>
+          <td><span class="badge b-p">{{ c.agent_name }}</span></td>
+          <td style="font-weight:600;color:var(--green);">S/{{ "%.0f"|format(c.monthly_fee or 0) }}</td>
+          <td><span class="badge b-{{ 'g' if c.status=='active' else 'gray' }}">{{ 'Activo' if c.status=='active' else 'Inactivo' }}</span></td>
+          <td style="font-size:11px;color:var(--text3);">{{ c.install_date }}</td>
+          <td>
+            <form method="POST" action="/admin/clients/{{ c.id }}/deactivate" style="display:inline;" onsubmit="return confirm('¿Desactivar?')">
+              <button type="submit" class="btn btn-ghost btn-xs" title="Desactivar"><i class="fa-solid fa-user-slash"></i></button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7"><div class="empty"><i class="fa-solid fa-users-slash"></i><p>Sin clientes aún</p></div></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+<div class="mo" id="m-client">
+  <div class="mo-box">
+    <div class="mo-head"><div class="mo-title"><i class="fa-solid fa-user-plus"></i> Nuevo cliente</div><button class="mo-close" onclick="closeModal('m-client')"><i class="fa-solid fa-xmark"></i></button></div>
+    <form method="POST" action="/admin/clients/add">
+      <div class="mo-body">
+        <div class="fr"><div class="fg"><label class="fl">Nombre *</label><input name="name" class="fc" required/></div><div class="fg"><label class="fl">Negocio *</label><input name="business" class="fc" required/></div></div>
+        <div class="fr"><div class="fg"><label class="fl">WhatsApp</label><input name="phone" class="fc"/></div><div class="fg"><label class="fl">Correo</label><input name="email" type="email" class="fc"/></div></div>
+        <div class="fg"><label class="fl">Dirección</label><input name="address" class="fc"/></div>
+        <div class="fr">
+          <div class="fg"><label class="fl">Agente *</label><select name="agent_id" class="fc" required><option value="">Seleccionar...</option><option value="1">Marketing</option><option value="2">Inventario</option><option value="3">Ciberseguridad</option><option value="4">CRM</option><option value="5">Reservas</option><option value="6">Finanzas</option></select></div>
+          <div class="fg"><label class="fl">Fee mensual (S/)</label><input name="monthly_fee" type="number" class="fc" value="0" min="0"/></div>
+        </div>
+        <div class="fg"><label class="fl">Notas</label><textarea name="notes" class="fc" rows="2"></textarea></div>
+      </div>
+      <div class="mo-foot"><button type="button" class="btn btn-ghost" onclick="closeModal('m-client')">Cancelar</button><button type="submit" class="btn btn-primary"><i class="fa-solid fa-check"></i> Guardar</button></div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+{% block extra_scripts %}function filterTbl(){const q=document.getElementById('srch').value.toLowerCase();document.querySelectorAll('#tbl tbody tr').forEach(r=>{r.style.display=r.textContent.toLowerCase().includes(q)?'':'none';});}{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "admin/base.html" %}
+{% block title %}Base de conocimiento{% endblock %}
+{% block page_title %}Base de conocimiento{% endblock %}
+{% block page_sub %}Respuestas rápidas para resolver tickets{% endblock %}
+{% block topbar_actions %}<button class="btn btn-primary btn-sm" onclick="openModal('m-kb')"><i class="fa-solid fa-plus"></i> Nuevo artículo</button>{% endblock %}
+{% block content %}
+<div class="grid-2">
+  {% for item in items %}
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+      <div style="font-size:14px;font-weight:600;flex:1;">{{ item.title }}</div>
+      <span class="badge b-b">{{ item.category }}</span>
+    </div>
+    <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:8px;">{{ item.content }}</div>
+    <div style="font-size:11px;color:var(--text3);"><i class="fa-solid fa-robot"></i> {{ item.agent_name or 'General' }} · <i class="fa-solid fa-eye"></i> {{ item.views }} vistas</div>
+  </div>
+  {% else %}
+  <div class="card" style="grid-column:span 2;"><div class="empty"><i class="fa-solid fa-book"></i><p>Sin artículos aún. Agrega respuestas frecuentes para resolver tickets rápido.</p></div></div>
+  {% endfor %}
+</div>
+<div class="mo" id="m-kb">
+  <div class="mo-box">
+    <div class="mo-head"><div class="mo-title"><i class="fa-solid fa-plus"></i> Nuevo artículo</div><button class="mo-close" onclick="closeModal('m-kb')"><i class="fa-solid fa-xmark"></i></button></div>
+    <form method="POST" action="/admin/knowledge/add">
+      <div class="mo-body">
+        <div class="fg"><label class="fl">Título *</label><input name="title" class="fc" required placeholder="Ej: Cómo agregar un producto"/></div>
+        <div class="fg"><label class="fl">Contenido *</label><textarea name="content" class="fc" rows="4" required placeholder="Pasos o explicación detallada..."></textarea></div>
+        <div class="fr">
+          <div class="fg"><label class="fl">Categoría</label><input name="category" class="fc" placeholder="marketing, inventario, etc."/></div>
+          <div class="fg"><label class="fl">Agente relacionado</label><select name="agent_id" class="fc"><option value="">General</option><option value="1">Marketing</option><option value="2">Inventario</option><option value="3">Ciberseguridad</option><option value="4">CRM</option><option value="5">Reservas</option><option value="6">Finanzas</option></select></div>
+        </div>
+      </div>
+      <div class="mo-foot"><button type="button" class="btn btn-ghost" onclick="closeModal('m-kb')">Cancelar</button><button type="submit" class="btn btn-primary"><i class="fa-solid fa-check"></i> Guardar</button></div>
+    </form>
+  </div>
+</div>
+{% endblock %}

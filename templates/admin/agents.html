@@ -1,0 +1,51 @@
+{% extends "admin/base.html" %}
+{% block title %}Mis Agentes{% endblock %}
+{% block page_title %}Mis Agentes{% endblock %}
+{% block page_sub %}Gestiona y monitorea todos tus agentes{% endblock %}
+{% block content %}
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+{% for item in agents_data %}
+{% set ag = item.agent %}
+<div class="card">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+    <div style="width:40px;height:40px;border-radius:12px;background:{{ ag.color }}22;color:{{ ag.color }};display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;"><i class="fa-solid fa-{{ ag.icon }}"></i></div>
+    <div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ ag.name }}</div><div style="font-size:11px;color:var(--text3);">{{ ag.install_price }} inst · {{ ag.monthly_price }}/mes</div></div>
+    <div>
+      {% if ag.active %}<span class="badge b-g"><i class="fa-solid fa-circle" style="font-size:6px;"></i> Activo</span>
+      {% else %}<span class="badge b-gray"><i class="fa-solid fa-circle" style="font-size:6px;"></i> Inactivo</span>{% endif %}
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;">
+    <div class="card-sm" style="text-align:center;"><div style="font-size:18px;font-weight:700;color:{{ ag.color }};">{{ item.clients }}</div><div style="font-size:10px;color:var(--text3);">Clientes</div></div>
+    <div class="card-sm" style="text-align:center;"><div style="font-size:18px;font-weight:700;color:var(--green);">S/{{ "%.0f"|format(item.revenue) }}</div><div style="font-size:10px;color:var(--text3);">/mes</div></div>
+    <div class="card-sm" style="text-align:center;"><div style="font-size:18px;font-weight:700;color:{{ 'var(--red)' if item.tickets > 0 else 'var(--green)' }};">{{ item.tickets }}</div><div style="font-size:10px;color:var(--text3);">Tickets</div></div>
+  </div>
+  {% if item.monitor %}
+  <div style="font-size:11px;color:var(--text3);margin-bottom:10px;"><i class="fa-solid fa-signal" style="color:{{ 'var(--green)' if item.monitor.status=='online' else 'var(--red)' }};"></i> {{ item.monitor.status.title() }} · {{ item.monitor.uptime_percent }}% uptime</div>
+  {% endif %}
+  <div style="display:flex;gap:6px;">
+    <button class="btn btn-ghost btn-xs" onclick="openModal('edit-{{ ag.id }}')"><i class="fa-solid fa-edit"></i> Editar</button>
+    <button class="btn btn-xs {{ 'btn-danger' if ag.active else 'btn-success' }}" onclick="toggleAgent({{ ag.id }}, this)"><i class="fa-solid fa-{{ 'pause' if ag.active else 'play' }}"></i> {{ 'Pausar' if ag.active else 'Activar' }}</button>
+  </div>
+</div>
+<div class="mo" id="edit-{{ ag.id }}">
+  <div class="mo-box">
+    <div class="mo-head"><div class="mo-title"><i class="fa-solid fa-edit"></i> Editar {{ ag.name }}</div><button class="mo-close" onclick="closeModal('edit-{{ ag.id }}')"><i class="fa-solid fa-xmark"></i></button></div>
+    <form method="POST" action="/admin/agents/{{ ag.id }}/update">
+      <div class="mo-body">
+        <div class="fg"><label class="fl">Nombre</label><input name="name" class="fc" value="{{ ag.name }}"/></div>
+        <div class="fg"><label class="fl">Descripción</label><textarea name="description" class="fc" rows="2">{{ ag.description }}</textarea></div>
+        <div class="fr"><div class="fg"><label class="fl">Precio instalación</label><input name="install_price" class="fc" value="{{ ag.install_price }}"/></div><div class="fg"><label class="fl">Precio mensualidad</label><input name="monthly_price" class="fc" value="{{ ag.monthly_price }}"/></div></div>
+      </div>
+      <div class="mo-foot"><button type="button" class="btn btn-ghost" onclick="closeModal('edit-{{ ag.id }}')">Cancelar</button><button type="submit" class="btn btn-primary"><i class="fa-solid fa-save"></i> Guardar</button></div>
+    </form>
+  </div>
+</div>
+{% endfor %}
+</div>
+{% endblock %}
+{% block extra_scripts %}
+function toggleAgent(id, btn) {
+  fetch('/admin/agents/'+id+'/toggle', {method:'POST'}).then(r=>r.json()).then(d=>{location.reload();});
+}
+{% endblock %}

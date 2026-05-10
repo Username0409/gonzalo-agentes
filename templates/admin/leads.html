@@ -1,0 +1,35 @@
+{% extends "admin/base.html" %}
+{% block title %}Leads{% endblock %}
+{% block page_title %}Leads del sitio{% endblock %}
+{% block page_sub %}Contactos que llegaron desde el sitio público{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Nombre</th><th>Negocio</th><th>Contacto</th><th>Agente interés</th><th>Mensaje</th><th>Estado</th><th>Fecha</th><th>Acción</th></tr></thead>
+      <tbody>
+        {% for l in leads %}
+        <tr>
+          <td style="font-weight:500;color:var(--text);">{{ l.name }}</td>
+          <td>{{ l.business }}</td>
+          <td><div>{{ l.phone }}</div><div style="font-size:11px;color:var(--text3);">{{ l.email }}</div></td>
+          <td><span class="badge b-p">{{ l.agent_interest or '—' }}</span></td>
+          <td style="max-width:200px;font-size:12px;">{{ (l.message or '')[:60] }}{% if l.message and l.message|length > 60 %}...{% endif %}</td>
+          <td><span class="badge b-{{ 'y' if l.status=='new' else 'g' if l.status=='converted' else 'gray' }}">{{ l.status }}</span></td>
+          <td style="font-size:11px;color:var(--text3);">{{ l.created_at[:10] }}</td>
+          <td>
+            {% if l.status == 'new' %}
+            <form method="POST" action="/admin/leads/{{ l.id }}/convert" style="display:inline;">
+              <button type="submit" class="btn btn-success btn-xs">Convertir</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="8"><div class="empty"><i class="fa-solid fa-star"></i><p>Sin leads aún. Cuando alguien llene el formulario del sitio, aparecerá aquí.</p></div></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

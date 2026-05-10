@@ -1,0 +1,140 @@
+{% extends "admin/base.html" %}
+{% block title %}Tickets GLPI{% endblock %}
+{% block page_title %}Tickets GLPI{% endblock %}
+{% block page_sub %}Sistema de gestión de incidencias{% endblock %}
+{% block topbar_actions %}
+<button class="btn btn-primary btn-sm" onclick="openModal('m-ticket')"><i class="fa-solid fa-plus"></i> Nuevo ticket</button>
+{% endblock %}
+{% block extra_styles %}
+<style>
+.ticket-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:8px;transition:border-color .15s;}
+.ticket-card:hover{border-color:var(--border2);}
+.ticket-card.high{border-left:3px solid var(--red);}
+.ticket-card.normal{border-left:3px solid var(--yellow);}
+.ticket-card.low{border-left:3px solid var(--text3);}
+.ticket-card.resolved{border-left:3px solid var(--green);opacity:.7;}
+.sla-ok{color:var(--green);font-size:10px;}
+.sla-warn{color:var(--yellow);font-size:10px;}
+.sla-breach{color:var(--red);font-size:10px;}
+.filter-bar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+.filter-btn{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);font-size:12px;cursor:pointer;transition:all .15s;}
+.filter-btn.active{background:var(--accent);border-color:var(--accent);color:white;}
+.kb-card{background:var(--bg3);border-radius:var(--r);padding:10px 12px;margin-bottom:8px;}
+.kb-title{font-size:12px;font-weight:500;color:var(--text);margin-bottom:4px;}
+.kb-desc{font-size:11px;color:var(--text3);line-height:1.5;}
+</style>
+{% endblock %}
+{% block content %}
+<!-- STATS -->
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;">
+  <div class="card-sm" style="text-align:center;"><div style="font-size:22px;font-weight:700;color:var(--yellow);">{{ stats.open }}</div><div style="font-size:11px;color:var(--text3);">Abiertos</div></div>
+  <div class="card-sm" style="text-align:center;"><div style="font-size:22px;font-weight:700;color:var(--red);">{{ stats.high }}</div><div style="font-size:11px;color:var(--text3);">Urgentes</div></div>
+  <div class="card-sm" style="text-align:center;"><div style="font-size:22px;font-weight:700;color:var(--green);">{{ stats.resolved_today }}</div><div style="font-size:11px;color:var(--text3);">Resueltos hoy</div></div>
+  <div class="card-sm" style="text-align:center;"><div style="font-size:22px;font-weight:700;color:var(--blue);">{{ stats.total }}</div><div style="font-size:11px;color:var(--text3);">Total</div></div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 280px;gap:14px;">
+  <div>
+    <!-- FILTROS -->
+    <div class="filter-bar">
+      <a href="?status=all" class="filter-btn {{ 'active' if status_f=='all' }}">Todos</a>
+      <a href="?status=open" class="filter-btn {{ 'active' if status_f=='open' }}"><i class="fa-solid fa-circle" style="font-size:8px;color:var(--yellow)"></i> Abiertos</a>
+      <a href="?status=resolved" class="filter-btn {{ 'active' if status_f=='resolved' }}"><i class="fa-solid fa-circle" style="font-size:8px;color:var(--green)"></i> Resueltos</a>
+      <a href="?priority=high" class="filter-btn {{ 'active' if priority_f=='high' }}"><i class="fa-solid fa-fire" style="color:var(--red)"></i> Urgentes</a>
+    </div>
+    <!-- TICKETS -->
+    {% for tw in tickets %}
+    {% set t = tw.ticket %}
+    <div class="ticket-card {{ t.priority }} {{ 'resolved' if t.status=='resolved' }}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
+        <div>
+          <span style="font-size:12px;font-weight:600;color:var(--accent);">{{ t.ticket_number }}</span>
+          <span style="font-size:14px;font-weight:600;color:var(--text);margin-left:8px;">{{ t.subject }}</span>
+        </div>
+        <div style="display:flex;gap:5px;flex-shrink:0;margin-left:8px;">
+          <span class="badge b-{{ 'r' if t.priority=='high' else 'y' if t.priority=='normal' else 'gray' }}">{{ 'URGENTE' if t.priority=='high' else 'Normal' }}</span>
+          <span class="badge b-{{ 'y' if t.status=='open' else 'g' }}">{{ 'Abierto' if t.status=='open' else 'Resuelto' }}</span>
+          {% if t.category %}<span class="badge b-b">{{ t.category }}</span>{% endif %}
+        </div>
+      </div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:6px;line-height:1.5;">{{ t.message }}</div>
+      <div style="display:flex;gap:14px;font-size:11px;flex-wrap:wrap;">
+        <span style="color:var(--text3);"><i class="fa-solid fa-user"></i> {{ t.client_name }}</span>
+        <span style="color:var(--text3);"><i class="fa-solid fa-briefcase"></i> {{ t.business }}</span>
+        <span style="color:var(--text3);"><i class="fa-solid fa-robot"></i> {{ t.agent_name }}</span>
+        <span style="color:var(--text3);"><i class="fa-solid fa-clock"></i> {{ t.created_at[:16].replace('T',' ') }}</span>
+        {% if tw.sla == 'breached' %}<span class="sla-breach"><i class="fa-solid fa-triangle-exclamation"></i> SLA vencido</span>
+        {% elif tw.sla == 'warning' %}<span class="sla-warn"><i class="fa-solid fa-clock"></i> SLA próximo a vencer</span>
+        {% elif tw.sla == 'ok' and t.status == 'open' %}<span class="sla-ok"><i class="fa-solid fa-check"></i> SLA en tiempo</span>{% endif %}
+      </div>
+      {% if t.status == 'open' %}
+      <form method="POST" action="/admin/tickets/{{ t.id }}/resolve" style="margin-top:10px;display:flex;gap:8px;">
+        <input name="resolution" class="fc" placeholder="Escribe la solución aplicada..." style="flex:1;padding:7px 10px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:var(--r);font-family:inherit;font-size:12px;"/>
+        <button type="submit" class="btn btn-success btn-sm"><i class="fa-solid fa-check"></i> Resolver</button>
+      </form>
+      {% elif t.resolution %}
+      <div style="margin-top:8px;font-size:12px;color:var(--green);background:rgba(16,185,129,.08);padding:8px 10px;border-radius:var(--r);">
+        <i class="fa-solid fa-check-circle"></i> <strong>Resolución:</strong> {{ t.resolution }}
+      </div>
+      {% endif %}
+    </div>
+    {% else %}
+    <div class="empty"><i class="fa-solid fa-check-circle" style="color:var(--green);font-size:40px;"></i><p style="margin-top:10px;">Sin tickets con estos filtros</p></div>
+    {% endfor %}
+  </div>
+
+  <!-- SIDEBAR BASE DE CONOCIMIENTO -->
+  <div>
+    <div class="card" style="margin-bottom:12px;">
+      <div class="sec-title"><span><i class="fa-solid fa-book" style="color:var(--cyan)"></i> Base de conocimiento</span></div>
+      {% for kb in kb_items %}
+      <div class="kb-card">
+        <div class="kb-title">{{ kb.title }}</div>
+        <div class="kb-desc">{{ kb.content[:80] }}...</div>
+      </div>
+      {% else %}
+      <div style="font-size:12px;color:var(--text3);">Sin artículos aún. <a href="/admin/knowledge" style="color:var(--accent);">Agregar</a></div>
+      {% endfor %}
+      <a href="/admin/knowledge" class="btn btn-ghost btn-sm" style="width:100%;margin-top:8px;justify-content:center;">Ver todo</a>
+    </div>
+    <div class="card">
+      <div class="sec-title"><span><i class="fa-solid fa-chart-bar" style="color:var(--yellow)"></i> Por agente</span></div>
+      {% for ag in agents %}
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);">
+        <span style="font-size:12px;color:var(--text2);">{{ ag.name }}</span>
+        <span class="badge b-{{ 'r' if ag.id==3 else 'y' }}">{{ tickets|selectattr('ticket.agent_id','eq',ag.id)|list|length }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NUEVO TICKET -->
+<div class="mo" id="m-ticket">
+  <div class="mo-box">
+    <div class="mo-head"><div class="mo-title"><i class="fa-solid fa-ticket"></i> Nuevo ticket</div><button class="mo-close" onclick="closeModal('m-ticket')"><i class="fa-solid fa-xmark"></i></button></div>
+    <form method="POST" action="/api/ticket" id="ticket-form">
+      <div class="mo-body">
+        <div class="fr"><div class="fg"><label class="fl">Nombre del cliente</label><input name="client_name" class="fc" placeholder="Nombre del cliente"/></div><div class="fg"><label class="fl">Negocio</label><input name="business" class="fc" placeholder="Nombre del negocio"/></div></div>
+        <div class="fr">
+          <div class="fg"><label class="fl">Agente</label><select name="agent_id" class="fc"><option value="1">Marketing</option><option value="2">Inventario</option><option value="3">Ciberseguridad</option><option value="4">CRM</option><option value="5">Reservas</option><option value="6">Finanzas</option></select></div>
+          <div class="fg"><label class="fl">Prioridad</label><select name="priority" class="fc"><option value="low">Baja</option><option value="normal" selected>Normal</option><option value="high">Alta — Urgente</option></select></div>
+        </div>
+        <div class="fg"><label class="fl">Categoría</label><select name="category" class="fc"><option value="consulta">Consulta</option><option value="incidencia">Incidencia</option><option value="mejora">Mejora</option><option value="configuracion">Configuración</option></select></div>
+        <div class="fg"><label class="fl">Asunto *</label><input name="subject" class="fc" required placeholder="Describe brevemente el problema"/></div>
+        <div class="fg"><label class="fl">Mensaje</label><textarea name="message" class="fc" rows="3" placeholder="Descripción detallada..."></textarea></div>
+      </div>
+      <div class="mo-foot"><button type="button" class="btn btn-ghost" onclick="closeModal('m-ticket')">Cancelar</button><button type="button" class="btn btn-primary" onclick="submitTicket()"><i class="fa-solid fa-paper-plane"></i> Crear ticket</button></div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+{% block extra_scripts %}
+function submitTicket() {
+  const form = document.getElementById('ticket-form');
+  const data = Object.fromEntries(new FormData(form));
+  data.agent_name = form.querySelector('[name=agent_id] option:checked').text;
+  fetch('/api/ticket', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)})
+    .then(r=>r.json()).then(d=>{if(d.ok){location.reload();}});
+}
+{% endblock %}
