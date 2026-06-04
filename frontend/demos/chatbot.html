@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Agente 1 — Chatbot WhatsApp | Demo</title>
+<style>
+  /* =====================================================
+     ZONA DE MODIFICACIONES — AGENTE 1
+     =====================================================
+     Para cambiar el nombre de la tienda:
+       Busca: "Moda Gamarra" y reemplaza por el nombre del cliente
+
+     Para cambiar el color del header:
+       Busca: #075E54 (verde WhatsApp) y cambia por otro color
+
+     Para cambiar el avatar:
+       Busca: 👗 y reemplaza por otro emoji
+
+     Para agregar/quitar opciones del menú:
+       Ve a la sección FLOWS en el <script> y edita el objeto 'flows'
+  ===================================================== */
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #f0f2f5;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 20px;
+  }
+  .container { max-width: 420px; width: 100%; }
+  .demo-badge {
+    background: #25D366;
+    color: white;
+    text-align: center;
+    padding: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 8px 8px 0 0;
+    letter-spacing: 1px;
+  }
+
+  /* ── HEADER — modifica color aquí ── */
+  .header {
+    background: #075E54; /* ← CAMBIAR COLOR AQUÍ */
+    color: white;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: #25D366;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+  /* ── NOMBRE TIENDA — modifica aquí ── */
+  .header-name { font-size: 16px; font-weight: 600; } /* ← nombre en JS */
+  .header-status { font-size: 12px; color: #9de0d0; }
+
+  .chat-body {
+    background: #ECE5DD url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c8d0d8' fill-opacity='0.2'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    padding: 12px;
+    min-height: 400px;
+    max-height: 450px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .msg {
+    max-width: 82%;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.5;
+    position: relative;
+  }
+  .bot {
+    background: white;
+    align-self: flex-start;
+    border-radius: 0 10px 10px 10px;
+    color: #111;
+    box-shadow: 0 1px 2px rgba(0,0,0,.1);
+  }
+  .user {
+    background: #DCF8C6;
+    align-self: flex-end;
+    border-radius: 10px 0 10px 10px;
+    color: #111;
+    box-shadow: 0 1px 2px rgba(0,0,0,.1);
+  }
+  .msg-time { font-size: 10px; color: #888; text-align: right; margin-top: 4px; }
+  .options { display: flex; flex-direction: column; gap: 5px; margin-top: 2px; align-self: flex-start; width: 80%; }
+  .opt-btn {
+    background: white;
+    border: 1.5px solid #25D366;
+    color: #075E54;
+    border-radius: 20px;
+    padding: 7px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    text-align: center;
+    font-weight: 500;
+    transition: background .15s;
+    box-shadow: 0 1px 2px rgba(0,0,0,.08);
+  }
+  .opt-btn:hover { background: #e8fdf0; }
+  .input-bar {
+    background: #f0f0f0;
+    padding: 8px 12px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    border-top: 1px solid #ddd;
+  }
+  .input-bar input {
+    flex: 1;
+    border: none;
+    background: white;
+    border-radius: 20px;
+    padding: 9px 14px;
+    font-size: 13px;
+    outline: none;
+    box-shadow: 0 1px 2px rgba(0,0,0,.08);
+  }
+  .send-btn {
+    background: #075E54;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 38px; height: 38px;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .typing {
+    display: flex; align-items: center; gap: 4px;
+    padding: 10px 14px;
+    background: white;
+    border-radius: 0 10px 10px 10px;
+    align-self: flex-start;
+    width: 60px;
+    box-shadow: 0 1px 2px rgba(0,0,0,.1);
+  }
+  .dot {
+    width: 7px; height: 7px;
+    background: #aaa;
+    border-radius: 50%;
+    animation: bounce 1s infinite;
+  }
+  .dot:nth-child(2) { animation-delay: .15s; }
+  .dot:nth-child(3) { animation-delay: .3s; }
+  @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+  .footer-bar {
+    display: flex;
+    background: #f5f5f5;
+    border-top: 1px solid #ddd;
+    border-radius: 0 0 12px 12px;
+    overflow: hidden;
+  }
+  .footer-btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 12px;
+    color: #555;
+    transition: background .15s;
+  }
+  .footer-btn:hover { background: #ebebeb; }
+  .footer-btn:first-child { border-right: 1px solid #ddd; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="demo-badge">🟢 DEMO EN VIVO — Chatbot WhatsApp</div>
+  <div class="header">
+    <div class="avatar" id="store-avatar">👗</div> <!-- ← CAMBIAR EMOJI -->
+    <div>
+      <div class="header-name" id="store-name">Moda Gamarra</div> <!-- ← CAMBIAR NOMBRE -->
+      <div class="header-status">En línea ahora</div>
+    </div>
+  </div>
+  <div class="chat-body" id="chatBody"></div>
+  <div class="input-bar">
+    <input type="text" id="userInput" placeholder="Escribe un mensaje..."
+           onkeydown="if(event.key==='Enter') sendMsg()" />
+    <button class="send-btn" onclick="sendMsg()" title="Enviar">➤</button>
+  </div>
+  <div class="footer-bar">
+    <button class="footer-btn" onclick="resetChat()">🔄 Reiniciar demo</button>
+    <button class="footer-btn" onclick="alert('Personaliza este bot editando la sección FLOWS en el archivo demo.html')">⚙️ Cómo modificar</button>
+  </div>
+</div>
+
+<script>
+/* =====================================================
+   FLOWS — AQUÍ DEFINES EL MENÚ Y RESPUESTAS DEL BOT
+   =====================================================
+   Estructura de cada opción:
+   "Nombre del botón": {
+     bot: "Mensaje que responde el bot",
+     options: ["Opcion 1", "Opcion 2", ...]  ← botones que aparecen después
+   }
+
+   PARA AGREGAR UNA NUEVA OPCIÓN:
+   1. Agrega el nombre en el array "options" del menú donde quieres que aparezca
+   2. Crea un nuevo bloque con ese nombre como clave
+   Ejemplo: agregar "Delivery":
+     - En "start" > options, agrega "Delivery"
+     - Crea: "Delivery": { bot: "Hacemos delivery a...", options: ["Volver al inicio"] }
+===================================================== */
+const STORE_NAME = "Moda Gamarra"; // ← CAMBIAR NOMBRE TIENDA
+const STORE_EMOJI = "👗";           // ← CAMBIAR EMOJI
+const STORE_PHONE = "+51 987 654 321"; // ← CAMBIAR TELÉFONO
+const STORE_ADDRESS = "Gamarra, Galería El Rey, Stand 214 - La Victoria"; // ← CAMBIAR DIRECCIÓN
+const STORE_HOURS = "Lunes a Sábado 9am - 7pm | Domingo 10am - 4pm"; // ← CAMBIAR HORARIO
+
+const flows = {
+  start: {
+    bot: `¡Hola! Bienvenido a ${STORE_NAME} 👗\nSoy tu asistente virtual. ¿En qué te puedo ayudar?`,
+    options: ["Ver productos", "Precios y tallas", "Horario y ubicación", "Hacer un pedido", "Hablar con atención"]
+    // ↑ AGREGAR O QUITAR OPCIONES AQUÍ
+  },
+
+  // ── PRODUCTOS ──────────────────────────────────────────────────────────────
+  "Ver productos": {
+    bot: "Tenemos las siguientes categorías disponibles:",
+    options: ["Polos y camisas", "Pantalones y jeans", "Vestidos y faldas", "Accesorios", "Volver al inicio"]
+  },
+  "Polos y camisas": {
+    bot: "Polos desde S/15 c/u o S/120 la docena.\nCamisas formales desde S/35.\nTallas S, M, L, XL, XXL.\nColores variados — pedidos al por mayor disponibles.",
+    options: ["Hacer un pedido", "Ver otros productos", "Volver al inicio"]
+  },
+  "Pantalones y jeans": {
+    bot: "Jeans de drill desde S/45 por unidad.\nPantalones de vestir desde S/55.\nTallas 28 al 42.\nEntrega inmediata o delivery a Lima.",
+    options: ["Hacer un pedido", "Ver otros productos", "Volver al inicio"]
+  },
+  "Vestidos y faldas": {
+    bot: "Vestidos casuales desde S/40.\nVestidos de gala desde S/90.\nFaldas desde S/25.\nPedidos especiales con 48h de anticipación.",
+    options: ["Hacer un pedido", "Ver otros productos", "Volver al inicio"]
+  },
+  "Accesorios": {
+    bot: "Cinturones desde S/12, carteras desde S/25, gorros desde S/15.\nTambién tenemos packs combo con descuento especial.",
+    options: ["Hacer un pedido", "Ver otros productos", "Volver al inicio"]
+  },
+
+  // ── PRECIOS ────────────────────────────────────────────────────────────────
+  "Precios y tallas": {
+    bot: `Precios al por menor y mayor:\n• Polos: S/15 u / S/120 docena\n• Jeans: S/45 u / S/350 docena\n• Vestidos: desde S/40\n\nAceptamos Yape, Plin y efectivo.`,
+    options: ["Ver productos", "Hacer un pedido", "Volver al inicio"]
+  },
+
+  // ── UBICACIÓN ──────────────────────────────────────────────────────────────
+  "Horario y ubicación": {
+    bot: `📍 ${STORE_ADDRESS}\n\n🕐 ${STORE_HOURS}\n\nTambién hacemos delivery a toda Lima.`,
+    options: ["¿Cómo llegar?", "Hacer un pedido", "Volver al inicio"]
+  },
+  "¿Cómo llegar?": {
+    bot: "Puedes llegar por:\n🚇 Metro: Estación Gamarra (Línea 1)\n🚌 Bus: Av. Aviación o Av. México\n🚗 Auto: Estacionamiento Jr. Gamarra 750\n\n¡Te esperamos!",
+    options: ["Hacer un pedido", "Volver al inicio"]
+  },
+
+  // ── PEDIDO ─────────────────────────────────────────────────────────────────
+  "Hacer un pedido": {
+    bot: "¡Perfecto! Para tomar tu pedido necesito:\n1️⃣ Producto y cantidad\n2️⃣ Talla(s)\n3️⃣ Color preferido\n4️⃣ Nombre y dirección (si es delivery)\n\nEscribe los datos o uno de nuestros vendedores te atenderá.",
+    options: ["Hablar con atención", "Volver al inicio"]
+  },
+
+  // ── ATENCIÓN HUMANA ───────────────────────────────────────────────────────
+  "Hablar con atención": {
+    bot: `Un momento, te conecto con un vendedor ahora mismo.\n⏱ Tiempo de espera: menos de 2 minutos.\n\nO llámanos: ${STORE_PHONE}`,
+    options: ["Volver al inicio"]
+  },
+
+  // ── NAVEGACIÓN ────────────────────────────────────────────────────────────
+  "Ver otros productos": {
+    bot: "¿Qué otra categoría quieres ver?",
+    options: ["Polos y camisas", "Pantalones y jeans", "Vestidos y faldas", "Accesorios", "Volver al inicio"]
+  },
+  "Volver al inicio": {
+    bot: "¡Claro! ¿En qué más te puedo ayudar?",
+    options: ["Ver productos", "Precios y tallas", "Horario y ubicación", "Hacer un pedido", "Hablar con atención"]
+  }
+};
+
+// ── MOTOR DEL CHAT (no necesitas modificar esto) ──────────────────────────
+const body = document.getElementById('chatBody');
+
+function getTime() {
+  const d = new Date();
+  return d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+}
+function addMsg(text, type, options) {
+  const msg = document.createElement('div');
+  msg.className = 'msg ' + type;
+  msg.innerHTML = text.replace(/\n/g, '<br>') + `<div class="msg-time">${getTime()}</div>`;
+  body.appendChild(msg);
+  if (options) {
+    const opts = document.createElement('div');
+    opts.className = 'options';
+    options.forEach(o => {
+      const b = document.createElement('button');
+      b.className = 'opt-btn';
+      b.textContent = o;
+      b.onclick = () => handleOption(o, opts);
+      opts.appendChild(b);
+    });
+    body.appendChild(opts);
+  }
+  body.scrollTop = body.scrollHeight;
+}
+function showTyping(cb) {
+  const t = document.createElement('div');
+  t.className = 'typing';
+  t.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+  body.appendChild(t);
+  body.scrollTop = body.scrollHeight;
+  setTimeout(() => { t.remove(); cb(); }, 900);
+}
+function handleOption(option, optsEl) {
+  if (optsEl) optsEl.remove();
+  addMsg(option, 'user');
+  const flow = flows[option] || flows['start'];
+  showTyping(() => addMsg(flow.bot, 'bot', flow.options));
+}
+function sendMsg() {
+  const input = document.getElementById('userInput');
+  const val = input.value.trim();
+  if (!val) return;
+  input.value = '';
+  addMsg(val, 'user');
+  showTyping(() => addMsg(
+    `Gracias por tu mensaje. Un vendedor te responderá pronto, o elige una opción:`,
+    'bot',
+    ["Ver productos", "Hacer un pedido", "Hablar con atención"]
+  ));
+}
+function resetChat() {
+  body.innerHTML = '';
+  showTyping(() => addMsg(flows.start.bot, 'bot', flows.start.options));
+}
+resetChat();
+</script>
+</body>
+</html>

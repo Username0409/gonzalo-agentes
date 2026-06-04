@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Agente 3 — AutoPost Redes Sociales | Demo</title>
+<style>
+  :root { --grad-a: #833ab4; --grad-b: #fcb045; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; display: flex; justify-content: center; padding: 20px; min-height: 100vh; }
+  .container { max-width: 420px; width: 100%; }
+  .demo-badge { background: linear-gradient(135deg,var(--grad-a),var(--grad-b)); color: white; text-align: center; padding: 6px; font-size: 12px; font-weight: 600; border-radius: 8px 8px 0 0; letter-spacing: 1px; }
+  .header { background: linear-gradient(135deg,var(--grad-a),#fd1d1d,var(--grad-b)); padding: 14px 16px; display: flex; align-items: center; gap: 10px; }
+  .body { background: white; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 12px 12px; padding: 16px; }
+  .step-label { font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; margin-top: 12px; }
+  select, input[type=text] { width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; margin-bottom: 6px; background: #f8f9fa; color: #222; }
+  .gen-btn { width: 100%; padding: 12px; background: linear-gradient(135deg,var(--grad-a),#fd1d1d); color: white; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: 700; margin-top: 8px; }
+  .loading { text-align: center; padding: 20px; display: none; }
+  .spinner { width: 30px; height: 30px; border: 3px solid #eee; border-top-color: var(--grad-a); border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto 10px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .result-box { display: none; margin-top: 14px; }
+  .post-preview { background: #f8f9fa; border-radius: 10px; padding: 14px; border: 1px solid #e2e8f0; margin-bottom: 10px; }
+  .post-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg,var(--grad-a),var(--grad-b)); display: flex; align-items: center; justify-content: center; color: white; font-size: 13px; font-weight: 700; }
+  .post-text { font-size: 13px; color: #222; line-height: 1.6; margin-bottom: 8px; }
+  .post-tags { font-size: 12px; color: var(--grad-a); line-height: 1.8; }
+  .post-actions { display: flex; gap: 16px; margin-top: 10px; padding-top: 8px; border-top: 1px solid #e2e8f0; }
+  .p-action { font-size: 12px; color: #888; }
+  .sched-info { background: #f0f9ff; border-radius: 8px; padding: 10px 12px; margin-bottom: 10px; font-size: 12px; color: #0c5460; line-height: 1.7; }
+  .pub-btn { width: 100%; padding: 10px; border: none; border-radius: 8px; font-size: 13px; cursor: pointer; font-weight: 600; margin-bottom: 6px; }
+  .btn-fb { background: #1877f2; color: white; }
+  .btn-ig { background: linear-gradient(135deg,var(--grad-a),#fd1d1d); color: white; }
+  .ok-msg { background: #d4edda; color: #155724; border-radius: 8px; padding: 8px 12px; font-size: 12px; margin-top: 8px; text-align: center; display: none; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="demo-badge">📱 DEMO EN VIVO — AutoPost Redes Sociales</div>
+  <div class="header">
+    <span style="font-size:26px">📱</span>
+    <div>
+      <div style="font-size:15px;font-weight:700;color:white">AutoPost IA</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.8)">Publica en Instagram y Facebook automáticamente</div>
+    </div>
+  </div>
+  <div class="body">
+    <div class="step-label">1. Selecciona tu producto</div>
+    <select id="producto" onchange="resetResult()">
+      <option value="">— Elige un producto —</option>
+    </select>
+    <div class="step-label">2. Precio (opcional)</div>
+    <input type="text" id="precio" placeholder="Ej: desde S/25 por unidad" />
+    <div class="step-label">3. Horario de publicación</div>
+    <select id="horario"></select>
+    <button class="gen-btn" onclick="generatePost()">✨ Generar publicación con IA</button>
+    <div class="loading" id="loading"><div class="spinner"></div><div style="font-size:13px;color:#888">Generando tu publicación...</div></div>
+    <div class="result-box" id="result-box">
+      <div class="step-label">Vista previa</div>
+      <div class="post-preview">
+        <div class="post-header">
+          <div class="avatar" id="post-avatar">MG</div>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:#222" id="post-store-name">Moda Gamarra</div>
+            <div style="font-size:11px;color:#888" id="post-time"></div>
+          </div>
+        </div>
+        <div class="post-text" id="post-text"></div>
+        <div class="post-tags" id="post-tags"></div>
+        <div class="post-actions"><span class="p-action">❤️ Me gusta</span><span class="p-action">💬 Comentar</span><span class="p-action">↗️ Compartir</span></div>
+      </div>
+      <div class="sched-info" id="sched-info"></div>
+      <button class="pub-btn btn-fb" onclick="publish('Facebook')">📘 Publicar en Facebook</button>
+      <button class="pub-btn btn-ig" onclick="publish('Instagram')">📸 Publicar en Instagram</button>
+      <div class="ok-msg" id="ok-msg"></div>
+    </div>
+  </div>
+</div>
+<script>
+// ── CONFIGURACIÓN — EDITAR AQUÍ ──────────────────────────────────────────────
+const STORE_NAME     = "Moda Gamarra";  // ← CAMBIAR nombre del negocio
+const STORE_INITIALS = "MG";            // ← CAMBIAR iniciales (2 letras)
+
+const PRODUCTS = [
+  { label: "Polos nuevos de temporada",  text: "¡Llegaron los polos de temporada que estabas esperando! Colores frescos, tallas S a XXL, perfectos para el día a día. Calidad garantizada directo de Gamarra.", tags: "#Polos #ModaGamarra #Gamarra #RopaLima #Polos2025" },
+  { label: "Jeans de moda 2025",         text: "Los jeans que marcan tendencia ya están disponibles. Cortes modernos para todos los estilos. Por mayor y menor, precios imbatibles. Visítanos o escribe al WhatsApp.", tags: "#Jeans #Denim #ModaGamarra #Gamarra #RopaLima #Moda2025" },
+  { label: "Vestidos de fiesta",         text: "¡Para brillar en cada celebración! Vestidos de fiesta con diseños exclusivos, telas de calidad y precios al alcance de todos. Perfectos para quinceañeros, bodas y eventos.", tags: "#VestidosDeFiesta #ModaFemenina #Gamarra #ModaPeruana #Quinceañera" },
+  { label: "Oferta especial del día",    text: "¡OFERTA DE HOY por tiempo limitado! Precios especiales solo por hoy. No te quedes sin el tuyo. Escribe al WhatsApp o visítanos en Gamarra ahora mismo.", tags: "#Oferta #Descuentos #Gamarra #OfertasLima #ModaBarata #HoyONunca" },
+  { label: "Nueva colección llegada",    text: "¡Nueva colección acaba de llegar! Piezas únicas, diseños exclusivos, listos para entrega inmediata. Por mayor escríbenos al WhatsApp.", tags: "#NuevaColeccion #Gamarra #ModaNueva #RopaLima #Moda2025 #LlegaLoNuevo" },
+  // ← AGREGAR MÁS PRODUCTOS AQUÍ con el mismo formato
+];
+
+const SCHEDULES = [
+  { label: "Publicar ahora",           text: "Publicado ahora mismo" },
+  { label: "Mañana 9:00 am",          text: "Programado para mañana 9:00 am" },
+  { label: "Hoy 6:00 pm",             text: "Programado para hoy 6:00 pm" },
+  { label: "Sábado 11:00 am",         text: "Programado para el sábado 11:00 am" },
+  // ← AGREGAR MÁS HORARIOS AQUÍ
+];
+// ────────────────────────────────────────────────────────────────────────────
+
+// Poblar selects
+const selProd = document.getElementById('producto');
+PRODUCTS.forEach((p, i) => {
+  const o = document.createElement('option');
+  o.value = i; o.textContent = p.label;
+  selProd.appendChild(o);
+});
+const selHor = document.getElementById('horario');
+SCHEDULES.forEach((s, i) => {
+  const o = document.createElement('option');
+  o.value = i; o.textContent = s.label;
+  selHor.appendChild(o);
+});
+document.getElementById('post-avatar').textContent    = STORE_INITIALS;
+document.getElementById('post-store-name').textContent = STORE_NAME;
+
+function generatePost() {
+  const idx = document.getElementById('producto').value;
+  if (idx === '') { alert('Por favor selecciona un producto primero'); return; }
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('result-box').style.display = 'none';
+  setTimeout(() => {
+    const p = PRODUCTS[idx];
+    const precio = document.getElementById('precio').value;
+    const hidx = document.getElementById('horario').value;
+    let texto = p.text;
+    if (precio) texto += ' Precio: ' + precio + '.';
+    document.getElementById('post-text').textContent = texto;
+    document.getElementById('post-tags').textContent = p.tags;
+    document.getElementById('post-time').textContent = SCHEDULES[hidx].text;
+    document.getElementById('sched-info').innerHTML =
+      '📅 <b>Horario:</b> ' + SCHEDULES[hidx].text + '<br>' +
+      '👥 <b>Alcance estimado:</b> 800 – 2,400 personas';
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('result-box').style.display = 'block';
+  }, 1400);
+}
+function publish(red) {
+  const ok = document.getElementById('ok-msg');
+  ok.textContent = '✅ ¡Publicado en ' + red + ' exitosamente!';
+  ok.style.display = 'block';
+  setTimeout(() => ok.style.display = 'none', 2500);
+}
+function resetResult() { document.getElementById('result-box').style.display = 'none'; }
+</script>
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Agente 4 — SecureScanner | Demo</title>
+<style>
+  /* =====================================================
+     ZONA DE MODIFICACIONES — AGENTE 4
+     =====================================================
+     Para cambiar tu nombre/marca:
+       Busca ANALYST_NAME y COMPANY_NAME en el <script>
+
+     Para agregar vulnerabilidades al reporte:
+       Ve al array VULNS en el <script> y agrega objetos
+
+     Para cambiar el puntaje de riesgo:
+       Busca RISK_SCORE en el <script>
+
+     Niveles disponibles: critico | alto | medio | bajo | info
+  ===================================================== */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Courier New', Courier, monospace; background: #0d1117; display: flex; justify-content: center; padding: 20px; min-height: 100vh; }
+  .container { max-width: 420px; width: 100%; }
+  .demo-badge { background: #238636; color: white; text-align: center; padding: 6px; font-size: 12px; font-weight: 600; border-radius: 8px 8px 0 0; letter-spacing: 1px; font-family: sans-serif; }
+  .header { background: #161b22; border: 1px solid #30363d; border-top: none; padding: 14px 16px; display: flex; align-items: center; gap: 10px; }
+  .terminal { background: #0d1117; border: 1px solid #30363d; border-top: none; border-radius: 0 0 12px 12px; padding: 14px; min-height: 420px; }
+  .t { font-size: 12px; line-height: 1.6; margin-bottom: 2px; }
+  .green  { color: #3fb950; }
+  .yellow { color: #d29922; }
+  .red    { color: #f85149; }
+  .blue   { color: #58a6ff; }
+  .gray   { color: #8b949e; }
+  .white  { color: #c9d1d9; }
+  .input-row { display: flex; gap: 8px; margin: 10px 0; }
+  .t-input { flex: 1; background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 8px 12px; font-size: 13px; color: #c9d1d9; font-family: 'Courier New', monospace; }
+  .scan-btn { padding: 8px 16px; background: #238636; color: white; border: none; border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: 700; white-space: nowrap; }
+  .scan-btn:disabled { background: #333; color: #555; cursor: not-allowed; }
+  .progress-bar { background: #21262d; border-radius: 4px; height: 6px; margin-bottom: 12px; overflow: hidden; display: none; }
+  .progress-fill { height: 100%; background: #238636; border-radius: 4px; width: 0; transition: width .3s; }
+  .results { display: none; }
+  .divider { border: none; border-top: 1px solid #30363d; margin: 14px 0; }
+  .score-box { display: flex; align-items: center; gap: 12px; background: #161b22; border-radius: 8px; padding: 12px; margin-bottom: 14px; border: 1px solid #30363d; }
+  .score-num { font-size: 32px; font-weight: 700; color: #f85149; font-family: sans-serif; }
+  .score-bar { flex: 1; height: 8px; background: #21262d; border-radius: 4px; overflow: hidden; }
+  .score-fill { height: 100%; background: linear-gradient(90deg, #f85149, #d29922); border-radius: 4px; }
+  .vuln-card { border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; border-left: 3px solid; font-family: sans-serif; }
+  .v-critico { background: #1c0a0a; border-left-color: #f85149; }
+  .v-alto    { background: #1c1200; border-left-color: #d29922; }
+  .v-medio   { background: #0c1a0c; border-left-color: #3fb950; }
+  .v-bajo    { background: #0c1421; border-left-color: #58a6ff; }
+  .v-info    { background: #1a1a2e; border-left-color: #888; }
+  .v-title-critico { color: #f85149; font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+  .v-title-alto    { color: #d29922; font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+  .v-title-medio   { color: #3fb950; font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+  .v-title-bajo    { color: #58a6ff; font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+  .v-title-info    { color: #aaa;    font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+  .v-desc { font-size: 11px; color: #8b949e; line-height: 1.5; }
+  .report-btn { width: 100%; padding: 10px; background: #58a6ff; color: #0d1117; border: none; border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: 700; margin-top: 10px; font-family: sans-serif; }
+  .ok-msg { background: #0c1a0c; color: #3fb950; border-radius: 6px; padding: 8px 12px; font-size: 12px; margin-top: 8px; display: none; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="demo-badge">🔐 DEMO EN VIVO — SecureScanner Pro</div>
+  <div class="header">
+    <span style="font-size:22px">🛡️</span>
+    <div>
+      <div style="font-size:15px;font-weight:700;color:#58a6ff" id="app-title">SecureScanner Pro</div>
+      <!-- ↑ CAMBIAR NOMBRE APP -->
+      <div style="font-size:11px;color:#8b949e" id="analyst-name">by Gonzalo Valles — Ing. Ciberseguridad</div>
+      <!-- ↑ CAMBIAR TU NOMBRE -->
+    </div>
+  </div>
+  <div class="terminal">
+    <div class="t green">$ SecureScanner v1.0 — Análisis de vulnerabilidades</div>
+    <div class="t white" style="margin-bottom:8px">Ingresa la IP o dominio objetivo:</div>
+    <div class="input-row">
+      <input class="t-input" id="target" type="text" placeholder="192.168.1.0/24 o empresa.com" />
+      <button class="scan-btn" id="scanBtn" onclick="startScan()">▶ Escanear</button>
+    </div>
+    <div class="progress-bar" id="progress-bar">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+    <div id="terminal-output"></div>
+    <div class="results" id="results">
+      <hr class="divider"/>
+      <div class="t blue" style="margin-bottom:10px;font-family:sans-serif;font-size:13px">📋 REPORTE DE SEGURIDAD — HALLAZGOS</div>
+      <div class="score-box">
+        <div>
+          <div class="score-num" id="score-num">3.2</div>
+          <div style="font-size:11px;color:#8b949e;font-family:sans-serif">Riesgo global / 10</div>
+        </div>
+        <div style="flex:1">
+          <div class="score-bar"><div class="score-fill" id="score-bar-fill" style="width:68%"></div></div>
+          <div style="font-size:11px;color:#f85149;margin-top:4px;font-family:sans-serif" id="score-label">Nivel: CRÍTICO — Requiere acción inmediata</div>
+        </div>
+      </div>
+      <div id="vuln-list"></div>
+      <button class="report-btn" onclick="genReport()">📄 Generar reporte PDF para el cliente</button>
+      <div class="ok-msg" id="rep-ok">✅ Reporte generado: auditoria_seguridad_2026.pdf — Listo para entregar</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =====================================================
+   DATOS — MODIFICA AQUÍ PARA CADA CLIENTE
+   =====================================================
+   ANALYST_NAME:  Tu nombre y credencial
+   RISK_SCORE:    Puntaje de 0 a 10 (10 = crítico)
+   RISK_LABEL:    Texto del nivel de riesgo
+   RISK_PERCENT:  Ancho de la barra (0% a 100%)
+
+   VULNS: lista de vulnerabilidades encontradas
+     - level:  "critico" | "alto" | "medio" | "bajo" | "info"
+     - title:  Título de la vulnerabilidad
+     - desc:   Descripción y recomendación
+
+   SCAN_LINES: mensajes que aparecen en la terminal
+     - c:   clase de color (green/yellow/red/blue/white/gray)
+     - txt: texto que aparece
+===================================================== */
+
+const ANALYST_NAME  = "Gonzalo Valles — Ing. Ciberseguridad"; // ← CAMBIAR
+const RISK_SCORE    = "3.2";       // ← CAMBIAR puntaje
+const RISK_PERCENT  = "68%";       // ← CAMBIAR % de la barra
+const RISK_LABEL    = "Nivel: CRÍTICO — Requiere acción inmediata"; // ← CAMBIAR
+
+// ── VULNERABILIDADES — AGREGAR O EDITAR ──────────────────────────────────────
+const VULNS = [
+  {
+    level: "critico",
+    title: "Puerto 23 (Telnet) abierto — CRÍTICO",
+    desc:  "Acceso remoto sin cifrado. Cualquier atacante en la red puede interceptar credenciales. Cerrar inmediatamente y usar SSH (puerto 22)."
+  },
+  {
+    level: "alto",
+    title: "SMB sin autenticación (Puerto 445) — ALTO",
+    desc:  "Carpetas compartidas accesibles sin contraseña. Riesgo de ransomware y robo de archivos. Aplicar autenticación obligatoria."
+  },
+  {
+    level: "alto",
+    title: "Router con contraseña por defecto — ALTO",
+    desc:  "Se detectó router con credenciales admin/admin. Cambiar inmediatamente. Riesgo de control total de la red por atacante externo."
+  },
+  {
+    level: "medio",
+    title: "Firewall sin reglas de salida — MEDIO",
+    desc:  "No hay control de tráfico saliente. Posible exfiltración de datos. Configurar ACL de salida en el firewall."
+  },
+  {
+    level: "info",
+    title: "14 dispositivos detectados en red — INFO",
+    desc:  "PCs, impresoras, celulares y 2 dispositivos no identificados. Se recomienda inventario y segmentación por VLANs."
+  },
+  // ← AGREGAR MÁS VULNERABILIDADES AQUÍ
+];
+
+// ── MENSAJES DE LA TERMINAL — PUEDES EDITAR ──────────────────────────────────
+const SCAN_LINES = [
+  { t: 400,  c: 'green',  txt: '[OK] Iniciando escaneo de red...' },
+  { t: 900,  c: 'white',  txt: '[>>] Detectando dispositivos activos (Nmap)...' },
+  { t: 1500, c: 'blue',   txt: '[>>] 14 hosts activos encontrados' },
+  { t: 2000, c: 'white',  txt: '[>>] Escaneando puertos abiertos...' },
+  { t: 2600, c: 'yellow', txt: '[!] Puerto 23 (Telnet) abierto — RIESGO CRÍTICO' },
+  { t: 3100, c: 'yellow', txt: '[!] Puerto 445 (SMB) sin autenticación' },
+  { t: 3500, c: 'yellow', txt: '[!] Router con credenciales por defecto' },
+  { t: 4000, c: 'white',  txt: '[>>] Analizando configuración de firewall...' },
+  { t: 4500, c: 'yellow', txt: '[!] Firewall sin reglas de salida configuradas' },
+  { t: 5000, c: 'green',  txt: '[OK] Análisis completado — 4 vulnerabilidades encontradas' },
+];
+// ────────────────────────────────────────────────────────────────────────────
+
+// Aplicar configuración
+document.getElementById('analyst-name').textContent = 'by ' + ANALYST_NAME;
+document.getElementById('score-num').textContent    = RISK_SCORE;
+document.getElementById('score-bar-fill').style.width = RISK_PERCENT;
+document.getElementById('score-label').textContent  = RISK_LABEL;
+
+// Renderizar vulnerabilidades
+document.getElementById('vuln-list').innerHTML = VULNS.map(v => `
+  <div class="vuln-card v-${v.level}">
+    <div class="v-title-${v.level}">${v.title}</div>
+    <div class="v-desc">${v.desc}</div>
+  </div>
+`).join('');
+
+function startScan() {
+  const target = document.getElementById('target').value.trim();
+  if (!target) { alert('Ingresa una IP o dominio primero'); return; }
+  document.getElementById('scanBtn').disabled = true;
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('terminal-output').innerHTML = '';
+  const pb = document.getElementById('progress-bar');
+  const pf = document.getElementById('progress-fill');
+  pb.style.display = 'block'; pf.style.width = '0';
+  SCAN_LINES.forEach((l, i) => {
+    setTimeout(() => {
+      const d = document.createElement('div');
+      d.className = 't ' + l.c;
+      d.textContent = l.txt;
+      document.getElementById('terminal-output').appendChild(d);
+      pf.style.width = ((i + 1) / SCAN_LINES.length * 100) + '%';
+      if (i === SCAN_LINES.length - 1) {
+        setTimeout(() => {
+          pb.style.display = 'none';
+          document.getElementById('results').style.display = 'block';
+          document.getElementById('scanBtn').disabled = false;
+        }, 600);
+      }
+    }, l.t);
+  });
+}
+function genReport() {
+  const ok = document.getElementById('rep-ok');
+  ok.style.display = 'block';
+  setTimeout(() => ok.style.display = 'none', 3000);
+}
+</script>
+</body>
+</html>

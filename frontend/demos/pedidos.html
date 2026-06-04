@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Agente 2 — Gestor de Pedidos | Demo</title>
+<style>
+  /* =====================================================
+     ZONA DE MODIFICACIONES — AGENTE 2
+     =====================================================
+     Para cambiar el nombre del negocio:
+       Busca STORE_NAME en el <script>
+
+     Para cambiar los colores:
+       --accent: color principal de botones y badges
+       --dark:   color del header
+
+     Para agregar un cliente nuevo:
+       Ve al array CLIENTS en el <script> y agrega un objeto
+       con la misma estructura
+
+     Para cambiar estados:
+       Los estados disponibles son: Pagado, Pendiente, Atrasado, En camino
+  ===================================================== */
+  :root {
+    --accent: #e94560;   /* ← CAMBIAR COLOR PRINCIPAL */
+    --dark:   #1a1a2e;   /* ← CAMBIAR COLOR HEADER */
+    --light:  #f8f9fa;
+    --border: #e2e8f0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #f0f2f5;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    min-height: 100vh;
+  }
+  .container { max-width: 420px; width: 100%; }
+  .demo-badge {
+    background: var(--accent);
+    color: white;
+    text-align: center;
+    padding: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 8px 8px 0 0;
+    letter-spacing: 1px;
+  }
+  .header {
+    background: var(--dark);
+    color: white;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo {
+    width: 38px; height: 38px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+  .tabs {
+    display: flex;
+    background: white;
+    border-bottom: 1px solid var(--border);
+  }
+  .tab {
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+    font-size: 12px;
+    cursor: pointer;
+    color: #888;
+    border-bottom: 2px solid transparent;
+    transition: all .2s;
+    font-weight: 500;
+  }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); background: #fef2f4; }
+  .body {
+    background: white;
+    padding: 14px;
+    min-height: 360px;
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+  }
+  .section { display: none; }
+  .section.active { display: block; }
+  .search {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 12px;
+    background: var(--light);
+  }
+  .client-card {
+    background: var(--light);
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .client-card:hover { border-color: var(--accent); box-shadow: 0 2px 8px rgba(233,69,96,.1); }
+  .c-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .c-name { font-size: 14px; font-weight: 600; color: #222; }
+  .badge { font-size: 10px; padding: 3px 9px; border-radius: 10px; font-weight: 600; }
+  .b-green  { background: #d4edda; color: #155724; }
+  .b-yellow { background: #fff3cd; color: #856404; }
+  .b-red    { background: #f8d7da; color: #721c24; }
+  .b-blue   { background: #d1ecf1; color: #0c5460; }
+  .c-detail { font-size: 12px; color: #666; }
+  .c-monto  { font-size: 13px; font-weight: 600; color: var(--accent); margin-top: 4px; }
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+  .stat { background: var(--light); border-radius: 10px; padding: 12px; text-align: center; border: 1px solid var(--border); }
+  .stat-num { font-size: 24px; font-weight: 700; color: var(--accent); }
+  .stat-label { font-size: 11px; color: #888; margin-top: 2px; }
+  .alert-card { border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; font-size: 12px; display: flex; align-items: flex-start; gap: 8px; line-height: 1.5; }
+  .a-red    { background: #f8d7da; color: #721c24; }
+  .a-yellow { background: #fff3cd; color: #856404; }
+  .a-green  { background: #d4edda; color: #155724; }
+  .msg-panel { margin-top: 10px; background: var(--light); border-radius: 10px; padding: 12px; border: 1px solid var(--border); display: none; }
+  .msg-preview { font-size: 12px; background: white; border-radius: 8px; padding: 10px; color: #333; line-height: 1.6; border: 1px solid var(--border); margin-bottom: 8px; }
+  .btn { width: 100%; padding: 10px; border: none; border-radius: 8px; font-size: 13px; cursor: pointer; font-weight: 600; margin-bottom: 6px; transition: opacity .2s; }
+  .btn:hover { opacity: .9; }
+  .btn-accent { background: var(--accent); color: white; }
+  .btn-dark   { background: var(--dark); color: white; }
+  .btn-gray   { background: #eee; color: #444; font-size: 12px; }
+  .ok-msg { background: #d4edda; color: #155724; border-radius: 8px; padding: 8px 12px; font-size: 12px; margin-top: 6px; text-align: center; display: none; }
+  .section-title { font-size: 13px; font-weight: 600; color: #444; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="demo-badge">📦 DEMO EN VIVO — Gestor de Pedidos y Clientes</div>
+  <div class="header">
+    <div class="logo">📦</div>
+    <div>
+      <div style="font-size:15px;font-weight:600" id="store-name">GestorPedidos Pro</div>
+      <!-- ↑ CAMBIAR NOMBRE -->
+      <div style="font-size:11px;color:#aaa" id="store-sub">Panel mayorista — Gamarra</div>
+      <!-- ↑ CAMBIAR SUBTÍTULO -->
+    </div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('clientes')">👥 Clientes</div>
+    <div class="tab" onclick="showTab('resumen')">📊 Resumen</div>
+    <div class="tab" onclick="showTab('alertas')">🔔 Alertas</div>
+  </div>
+  <div class="body">
+
+    <!-- TAB CLIENTES -->
+    <div class="section active" id="tab-clientes">
+      <input class="search" type="text" placeholder="🔍 Buscar cliente..." oninput="filterClients(this.value)" />
+      <div id="client-list"></div>
+      <div class="msg-panel" id="msg-panel">
+        <div class="section-title">💬 Enviar recordatorio por WhatsApp</div>
+        <div class="msg-preview" id="msg-preview"></div>
+        <button class="btn btn-accent" onclick="sendReminder()">📤 Enviar recordatorio automático</button>
+        <button class="btn btn-gray" onclick="closeMsgPanel()">✕ Cancelar</button>
+        <div class="ok-msg" id="msg-ok">✅ Mensaje enviado por WhatsApp automáticamente</div>
+      </div>
+    </div>
+
+    <!-- TAB RESUMEN -->
+    <div class="section" id="tab-resumen">
+      <div class="stat-grid" id="stats-grid">
+        <!-- generado por JS -->
+      </div>
+      <div class="section-title">📋 Pedidos recientes</div>
+      <div id="recent-orders"></div>
+    </div>
+
+    <!-- TAB ALERTAS -->
+    <div class="section" id="tab-alertas">
+      <div class="section-title">⚠️ Alertas automáticas del sistema</div>
+      <div id="alerts-list"></div>
+      <button class="btn btn-accent" onclick="sendAllAlerts()" style="margin-top:8px">
+        📤 Enviar todos los recordatorios
+      </button>
+      <div class="ok-msg" id="alert-ok">✅ Recordatorios enviados a los clientes con deuda</div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* =====================================================
+   DATOS — MODIFICA AQUÍ PARA CADA CLIENTE
+   =====================================================
+   CLIENTS: lista de clientes del negocio
+     - name:     Nombre del cliente
+     - status:   "Pagado" | "Pendiente" | "Atrasado" | "En camino"
+     - days:     "hace X días" / "hoy" / "hace X horas"
+     - monto:    Monto en soles
+     - detalle:  Descripción del pedido
+     - phone:    Número de WhatsApp (solo para el mensaje)
+
+   STATS: tarjetas de resumen (número + etiqueta)
+
+   RECENT_ORDERS: pedidos recientes para el tab Resumen
+
+   ALERTS: alertas que aparecen en el tab Alertas
+===================================================== */
+
+// ── CONFIGURACIÓN DEL NEGOCIO ────────────────────────────────────────────────
+const STORE_NAME    = "Moda Gamarra";       // ← CAMBIAR
+const STORE_CONTACT = "+51 987 654 321";    // ← CAMBIAR
+
+// ── CLIENTES ─────────────────────────────────────────────────────────────────
+const CLIENTS = [
+  // AGREGAR O EDITAR CLIENTES AQUÍ:
+  { name: "Rosa Mamani",   status: "Pendiente", days: "hace 3 días",  monto: "S/480",   detalle: "Jeans talla 32 — 40 unid." },
+  { name: "Carlos Quispe", status: "Pagado",    days: "hoy",          monto: "S/720",   detalle: "Polos talla M — 60 unid." },
+  { name: "María Torres",  status: "Atrasado",  days: "hace 12 días", monto: "S/1,200", detalle: "Vestidos surtidos — 80 unid." },
+  { name: "Juan Flores",   status: "En camino", days: "hace 1 día",   monto: "S/350",   detalle: "Camisas formales — 25 unid." },
+  { name: "Pedro Salas",   status: "Pendiente", days: "hace 5 días",  monto: "S/620",   detalle: "Pantalones drill — 35 unid." },
+];
+
+// ── ESTADÍSTICAS DEL RESUMEN ─────────────────────────────────────────────────
+const STATS = [
+  { num: "24",    label: "Clientes activos" },
+  { num: "S/8.4k",label: "Ventas este mes"  },
+  { num: "6",     label: "Pedidos pendientes"},
+  { num: "3",     label: "Pagos atrasados"   },
+  // AGREGAR MÁS TARJETAS AQUÍ SI QUIERES
+];
+
+// ── PEDIDOS RECIENTES ─────────────────────────────────────────────────────────
+const RECENT_ORDERS = [
+  { title: "Hoy — 4 pedidos",      monto: "S/1,550", detalle: "Polos, jeans, camisas",  badge: "b-green" },
+  { title: "Ayer — 6 pedidos",     monto: "S/2,840", detalle: "Vestidos, accesorios",    badge: "b-green" },
+  { title: "Esta semana — 38 ped.", monto: "S/8,400", detalle: "Total acumulado",         badge: "b-blue"  },
+];
+
+// ── ALERTAS ───────────────────────────────────────────────────────────────────
+const ALERTS = [
+  { type: "a-red",    icon: "🚨", msg: "María Torres — pago atrasado 12 días (S/1,200)" },
+  { type: "a-yellow", icon: "⏳", msg: "Rosa Mamani — pedido sin confirmar hace 3 días" },
+  { type: "a-yellow", icon: "👤", msg: "Pedro Salas — sin comprar hace 18 días" },
+  { type: "a-green",  icon: "✅", msg: "Carlos Quispe — pago confirmado hoy" },
+  { type: "a-green",  icon: "🚚", msg: "Juan Flores — pedido en camino, entrega hoy" },
+  // AGREGAR MÁS ALERTAS AQUÍ
+];
+
+// ── MOTOR (no modificar) ──────────────────────────────────────────────────────
+const STATUS_MAP = {
+  "Pagado":   "b-green",
+  "Pendiente":"b-yellow",
+  "Atrasado": "b-red",
+  "En camino":"b-blue",
+};
+let selectedClient = null;
+
+function renderClients(list) {
+  const el = document.getElementById('client-list');
+  el.innerHTML = list.map((c, i) => `
+    <div class="client-card" onclick="showMsg(${i})">
+      <div class="c-top">
+        <span class="c-name">${c.name}</span>
+        <span class="badge ${STATUS_MAP[c.status]}">${c.status}</span>
+      </div>
+      <div class="c-detail">Último pedido: ${c.days}</div>
+      <div class="c-monto">${c.monto} — ${c.detalle}</div>
+    </div>
+  `).join('');
+}
+function filterClients(q) {
+  const filtered = CLIENTS.filter(c =>
+    c.name.toLowerCase().includes(q.toLowerCase()) ||
+    c.detalle.toLowerCase().includes(q.toLowerCase())
+  );
+  renderClients(filtered);
+}
+function showMsg(i) {
+  selectedClient = CLIENTS[i];
+  document.getElementById('msg-panel').style.display = 'block';
+  document.getElementById('msg-ok').style.display = 'none';
+  document.getElementById('msg-preview').innerHTML =
+    `Hola <b>${selectedClient.name}</b>, te recordamos que tienes un pedido pendiente:<br>
+     📦 <b>${selectedClient.detalle}</b><br>
+     💰 Monto: <b>${selectedClient.monto}</b><br><br>
+     Por favor confírmanos tu pago o coordina la entrega.<br>
+     Gracias — <b>${STORE_NAME}</b>`;
+}
+function closeMsgPanel() {
+  document.getElementById('msg-panel').style.display = 'none';
+}
+function sendReminder() {
+  const ok = document.getElementById('msg-ok');
+  ok.style.display = 'block';
+  setTimeout(() => { ok.style.display='none'; closeMsgPanel(); }, 2500);
+}
+function renderStats() {
+  document.getElementById('stats-grid').innerHTML = STATS.map(s => `
+    <div class="stat"><div class="stat-num">${s.num}</div><div class="stat-label">${s.label}</div></div>
+  `).join('');
+  document.getElementById('recent-orders').innerHTML = RECENT_ORDERS.map(o => `
+    <div class="client-card">
+      <div class="c-top"><span class="c-name">${o.title}</span><span class="badge ${o.badge}">${o.monto}</span></div>
+      <div class="c-detail">${o.detalle}</div>
+    </div>
+  `).join('');
+}
+function renderAlerts() {
+  document.getElementById('alerts-list').innerHTML = ALERTS.map(a => `
+    <div class="alert-card ${a.type}"><span>${a.icon}</span><span>${a.msg}</span></div>
+  `).join('');
+}
+function sendAllAlerts() {
+  const ok = document.getElementById('alert-ok');
+  ok.style.display = 'block';
+  setTimeout(() => ok.style.display = 'none', 2500);
+}
+function showTab(id) {
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    const ids = ['clientes','resumen','alertas'];
+    t.classList.toggle('active', ids[i] === id);
+  });
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+}
+
+// Inicializar
+renderClients(CLIENTS);
+renderStats();
+renderAlerts();
+</script>
+</body>
+</html>

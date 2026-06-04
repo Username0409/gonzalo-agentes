@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>DEMO — Agente Marketing Pro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#080C14;--surf:#0F1420;--card:#141B2D;--card2:#1A2235;--brd:#1E2D45;--acc:#00E5A0;--blue:#0EA5E9;--pur:#A855F7;--ora:#F97316;--red:#EF4444;--grn:#10B981;--yel:#F59E0B;--t:#E8F0FE;--t2:#7B8FAD;--t3:#3A4A5E}
+html,body{height:100%;font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t);overflow:hidden}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--brd);border-radius:4px}::-webkit-scrollbar-track{background:transparent}
+.sy{font-family:'Syne',sans-serif}
+#app{display:flex;height:100vh}
+#sb{width:236px;background:var(--surf);border-right:1px solid var(--brd);display:flex;flex-direction:column;transition:width .25s;flex-shrink:0;overflow:hidden}
+#sb.cls{width:60px}
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+#tb{height:62px;background:var(--surf);border-bottom:1px solid var(--brd);display:flex;align-items:center;padding:0 20px;gap:14px;flex-shrink:0}
+#ct{flex:1;overflow-y:auto;padding:20px}
+.slogo{padding:18px 14px;border-bottom:1px solid var(--brd);display:flex;align-items:center;gap:10px;flex-shrink:0;white-space:nowrap;overflow:hidden}
+.si{display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:10px;cursor:pointer;color:var(--t2);font-size:13px;font-weight:500;border:1px solid transparent;white-space:nowrap;overflow:hidden;transition:all .15s;margin-bottom:2px;user-select:none}
+.si:hover{background:var(--card2);color:var(--t)}
+.si.act{background:rgba(0,229,160,.1);color:var(--acc);border-color:rgba(0,229,160,.15)}
+.card{background:var(--card);border:1px solid var(--brd);border-radius:16px}
+.card2{background:var(--card2);border:1px solid var(--brd);border-radius:12px}
+.bp{background:var(--acc);color:#080C14;border:none;padding:9px 18px;border-radius:10px;font-family:'Outfit',sans-serif;font-weight:600;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:opacity .15s}
+.bp:hover{opacity:.83}
+.bg{background:var(--card2);color:var(--t);border:1px solid var(--brd);padding:9px 18px;border-radius:10px;font-family:'Outfit',sans-serif;font-weight:500;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:all .15s}
+.bg:hover{border-color:var(--acc);color:var(--acc)}
+.inp{background:var(--surf);border:1px solid var(--brd);color:var(--t);padding:9px 13px;border-radius:10px;font-family:'Outfit',sans-serif;font-size:13px;width:100%;outline:none}
+.inp:focus{border-color:var(--acc)}
+.inp::placeholder{color:var(--t3)}
+select.inp option{background:var(--card)}
+textarea.inp{resize:vertical}
+.lbl{font-size:11px;font-weight:700;letter-spacing:.8px;color:var(--t2);display:block;margin-bottom:7px;text-transform:uppercase}
+.bdg{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{text-align:left;padding:11px 16px;font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--t2);border-bottom:1px solid var(--brd)}
+.tbl td{padding:13px 16px;font-size:13px;border-bottom:1px solid rgba(30,45,69,.4)}
+.tbl tr:hover td{background:rgba(20,27,45,.4)}
+.tog{width:40px;height:22px;border-radius:11px;border:none;cursor:pointer;position:relative;flex-shrink:0;transition:background .2s}
+.tth{width:16px;height:16px;border-radius:50%;background:#fff;position:absolute;top:3px;transition:left .2s}
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.78);display:flex;align-items:center;justify-content:center;z-index:999;backdrop-filter:blur(5px)}
+.md{background:var(--card);border:1px solid var(--brd);border-radius:20px;padding:28px;width:90%;max-width:520px;max-height:90vh;overflow-y:auto;animation:fu .2s ease}
+.cbu{background:var(--acc);color:#080C14;border-radius:18px 18px 4px 18px;padding:9px 14px;max-width:75%;font-size:13px;font-weight:500;margin-left:auto}
+.cbb{background:var(--card2);border:1px solid var(--brd);color:var(--t);border-radius:18px 18px 18px 4px;padding:9px 14px;max-width:75%;font-size:13px;white-space:pre-line}
+.kpi{background:var(--card);border:1px solid var(--brd);border-radius:16px;padding:22px;position:relative;overflow:hidden;transition:transform .2s}
+.kpi:hover{transform:translateY(-2px)}
+#login{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px;z-index:9999}
+.fu{animation:fu .25s ease}
+@keyframes fu{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.ga{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.col{display:flex;flex-direction:column;gap:14px}
+.ndot{position:absolute;top:-4px;right:-4px;width:18px;height:18px;border-radius:50%;background:#EF4444;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;font-weight:700}
+</style>
+</head>
+<body>
+<div id="app" style="display:flex">
+  <div id="sb">
+    <div class="slogo">
+      <div style="width:34px;height:34px;border-radius:10px;flex-shrink:0;background:linear-gradient(135deg,rgba(0,229,160,.25),rgba(14,165,233,.2));border:1.5px solid rgba(0,229,160,.4);display:flex;align-items:center;justify-content:center;font-size:18px">🤖</div>
+      <div id="slt" style="overflow:hidden;margin-left:10px"><p class="sy" style="font-size:12px;font-weight:800;color:var(--t);white-space:nowrap">Agente Marketing</p><p style="font-size:9px;color:var(--acc);font-weight:700;letter-spacing:.5px">PRO · Lima, Perú</p></div>
+    </div>
+    <div id="sn" style="flex:1;overflow-y:auto;padding:10px 8px"></div>
+    <div style="padding:10px 8px;border-top:1px solid var(--brd)">
+      <div class="si" onclick="solicitarAcceso()" style="color:var(--acc)"><span style="font-size:17px;flex-shrink:0">✉️</span><span class="sl">Solicitar acceso</span></div>
+    </div>
+  </div>
+  <div id="main">
+    <div id="tb">
+      <span style="background:linear-gradient(90deg,#F59E0B,#F97316);color:#080C14;font-size:11px;font-weight:800;padding:5px 14px;border-radius:20px;letter-spacing:.5px;white-space:nowrap">🔓 MODO DEMO</span>
+      <button onclick="toggleSB()" style="background:none;border:none;color:var(--t2);cursor:pointer;font-size:20px;padding:8px">☰</button>
+      <div style="flex:1"></div>
+      <div style="position:relative">
+        <button onclick="clearN()" style="width:36px;height:36px;border-radius:10px;background:var(--card2);border:1px solid var(--brd);cursor:pointer;font-size:18px">🔔</button>
+        <div class="ndot" id="nd">3</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px;padding:6px 12px;background:var(--card2);border-radius:12px;border:1px solid var(--brd)">
+        <div id="uav" style="width:28px;height:28px;border-radius:50%;background:rgba(0,229,160,.2);border:2px solid rgba(0,229,160,.4);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:var(--acc);font-family:'Syne',sans-serif;flex-shrink:0"></div>
+        <div><p id="un" style="font-size:12px;font-weight:700;line-height:1"></p><p id="ur" style="font-size:10px;color:var(--acc);line-height:1;margin-top:2px"></p></div>
+      </div>
+    </div>
+    <div id="ct"></div>
+  </div>
+</div>
+<div class="mo" id="modal" style="display:none" onclick="if(event.target===this)closeModal()">
+  <div class="md" onclick="event.stopPropagation()" id="mb"></div>
+</div>
+<script>
+const USERS=[{email:"gonzalo@empresa.com",password:"GV2026admin",name:"Gonzalo Vargas",role:"Admin"},{email:"admin",password:"admin",name:"Demo Admin",role:"Admin"},{email:"agente",password:"agente123",name:"Agente Test",role:"Agente"}];
+let S={user:null,sbOpen:true,active:"dashboard",leads:[{id:1,name:"Restaurante El Peruano",contact:"Ana García",phone:"999-111-222",email:"ana@ep.com",status:"Caliente",source:"Instagram",notes:"Interesado en chatbot"},{id:2,name:"Spa Serenidad Lima",contact:"Luis Mendoza",phone:"999-333-444",email:"luis@sp.com",status:"Tibio",source:"WhatsApp",notes:"Quiere ver demo"},{id:3,name:"Galería Moda Lima",contact:"Sofía Torres",phone:"999-555-666",email:"sofia@ml.com",status:"Frío",source:"Referido",notes:"Primer contacto"},{id:4,name:"Clínica Salud Total",contact:"Dr. Ramírez",phone:"999-777-888",email:"dr@st.com",status:"Cerrado",source:"Facebook",notes:"Cliente activo S/400/mes"},{id:5,name:"Gym FitPower",contact:"Roberto Silva",phone:"999-999-000",email:"rob@fp.com",status:"Caliente",source:"Instagram",notes:"Demo agendada lunes"},{id:6,name:"Salón Belleza Divina",contact:"Patricia Vega",phone:"999-000-111",email:"pati@bd.com",status:"Tibio",source:"TikTok",notes:"Vio contenido en redes"}],campaigns:[{id:1,name:"Lanzamiento Mayo",objetivo:"Awareness",presupuesto:500,gastado:320,leads:45,ventas:8,estado:"Activa"},{id:2,name:"Promo Spas Lima",objetivo:"Conversión",presupuesto:800,gastado:800,leads:78,ventas:15,estado:"Completada"},{id:3,name:"Restaurantes Q2",objetivo:"Leads",presupuesto:1200,gastado:180,leads:14,ventas:2,estado:"Activa"}],botFlows:[{id:1,trigger:"hola,buenos días,buenas,hey",respuesta:"¡Hola! 👋 Soy el asistente virtual.\n\n1) Servicios\n2) Precios\n3) Agendar cita\n4) Hablar con agente",activo:true},{id:2,trigger:"precio,cuánto,costo,tarifa",respuesta:"Nuestros servicios van desde S/150 hasta S/500. ¿Te gustaría conocer los detalles? 😊",activo:true},{id:3,trigger:"horario,hora,abren,cierran",respuesta:"Atendemos:\n📅 Lun–Sáb: 9am–8pm\n📅 Domingos: 10am–6pm",activo:true},{id:4,trigger:"dirección,ubicación,dónde",respuesta:"Estamos en Miraflores, Lima 🗺️",activo:false},{id:5,trigger:"gracias",respuesta:"¡Con gusto! 😊 ¡Que tengas excelente día! ✨",activo:true}],users:[{id:1,name:"Gonzalo Vargas",email:"gonzalo@empresa.com",role:"Admin",active:true},{id:2,name:"María López",email:"maria@empresa.com",role:"Agente",active:true},{id:3,name:"Carlos Ríos",email:"carlos@empresa.com",role:"Viewer",active:false}],reviews:[{id:1,autor:"María C.",plataforma:"Google",rating:5,texto:"Excelente servicio, muy profesionales",fecha:"07/05",respondida:false},{id:2,autor:"Carlos M.",plataforma:"Facebook",rating:4,texto:"Muy buena atención, recomendado",fecha:"06/05",respondida:true},{id:3,autor:"Ana P.",plataforma:"Google",rating:2,texto:"Esperé demasiado, mejorar tiempos",fecha:"05/05",respondida:false},{id:4,autor:"Luis R.",plataforma:"TripAdvisor",rating:5,texto:"Lo mejor de Lima, volveré pronto",fecha:"04/05",respondida:true}],chatMsgs:[{f:"bot",t:"¡Hola! 👋 Soy el asistente virtual.\n\n1) Servicios\n2) Precios\n3) Agendar cita\n4) Hablar con agente"}],wl:{nombre:"Mi Negocio Lima",rubro:"Restaurante",descripcion:"Marketing IA para tu negocio",c1:"#00E5A0",c2:"#0EA5E9",tel:"999-000-111",email:"info@minegocio.com"},roi:{inv:1000,leads:50,cierre:20,ticket:400},flead:"Todos",slead:"",tBot:"chat",tSoc:"calendar",tCamp:"list"};
+const MENU=[{id:"dashboard",l:"Dashboard",e:"📊"},{id:"chatbot",l:"Chatbot IA",e:"🤖"},{id:"crm",l:"CRM Clientes",e:"👥"},{id:"campaigns",l:"Campañas",e:"📣"},{id:"social",l:"Redes Sociales",e:"📱"},{id:"analytics",l:"Analytics",e:"📈"},{id:"reviews",l:"Reseñas",e:"⭐"},{id:"fidelizacion",l:"Fidelización",e:"🎁"},{id:"restaurante",l:"Mod. Restaurante",e:"🍽️"},{id:"spa",l:"Mod. Spa/Salón",e:"💆"},{id:"ropa",l:"Mod. Ropa",e:"👗"},{id:"visual",l:"Creador Visual",e:"🎨"},{id:"calendario",l:"Fechas Clave",e:"📅"},{id:"landing",l:"Landing Page",e:"🌐"},{id:"tickets",l:"Tickets",e:"🎫"},{id:"whitelabel",l:"White-Label",e:"✨"},{id:"usuarios",l:"Usuarios",e:"🔐"},{id:"settings",l:"Configuración",e:"⚙️"}];
+const SC={Caliente:["#EF444415","#EF4444","🔥 Caliente"],Tibio:["#F59E0B15","#F59E0B","⚡ Tibio"],Frío:["#0EA5E915","#0EA5E9","❄️ Frío"],Cerrado:["#10B98115","#10B981","✅ Cerrado"],Activa:["#10B98115","#10B981","● Activa"],Completada:["#6B728015","#9CA3AF","✓ Hecha"],Admin:["#A855F715","#A855F7","Admin"],Agente:["#00E5A015","#00E5A0","Agente"],Viewer:["#0EA5E915","#0EA5E9","Viewer"],Programado:["#0EA5E915","#0EA5E9","Prog."],Borrador:["#6B728015","#9CA3AF","Borrador"]};
+function bdg(s){const[bg,c,txt]=SC[s]||["#6B728015","#9CA3AF",s];return`<span class="bdg" style="background:${bg};color:${c}">${txt}</span>`}
+function av(name,size=34,color="#00E5A0"){const i=name.split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase();return`<div style="width:${size}px;height:${size}px;border-radius:50%;background:${color}20;border:2px solid ${color}40;display:flex;align-items:center;justify-content:center;color:${color};font-size:${Math.round(size*.32)}px;font-weight:700;font-family:'Syne',sans-serif;flex-shrink:0">${i}</div>`}
+function kpi(e,t,v,ch,c){const up=ch>=0;return`<div class="kpi"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px"><div style="width:42px;height:42px;border-radius:12px;background:${c}15;display:flex;align-items:center;justify-content:center;font-size:20px">${e}</div><span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;background:${up?"#10B98118":"#EF444418"};color:${up?"#10B981":"#EF4444"}">${up?"↑":"↓"}${Math.abs(ch)}%</span></div><div class="sy" style="font-size:28px;font-weight:800;margin-bottom:3px">${v}</div><div style="font-size:12px;color:var(--t2)">${t}</div></div>`}
+function mb(p,c="#00E5A0"){return`<div style="height:5px;background:var(--brd);border-radius:10px;overflow:hidden;margin:5px 0"><div style="height:100%;width:${p}%;background:${c};border-radius:10px"></div></div>`}
+function ff(l,inp){return`<div><label class="lbl">${l}</label>${inp}</div>`}
+function ph(t,s){return`<div style="margin-bottom:20px"><h1 class="sy" style="font-size:24px;font-weight:800;margin-bottom:3px">${t}</h1><p style="color:var(--t2);font-size:13px">${s}</p></div>`}
+function tb(id,l,a){return`<button class="${a?"bp":"bg"}" onclick="setT('${id}')" style="font-size:12px">${l}</button>`}
+function pm(emoji,title,sub,features){return`<div class="fu">${ph(emoji+" "+title,sub)}<div class="ga">${features.map(([e,n,d])=>`<div class="card" style="padding:22px"><div style="font-size:28px;margin-bottom:10px">${e}</div><h3 style="font-size:14px;font-weight:700;margin-bottom:8px">${n}</h3><p style="font-size:13px;color:var(--t2);line-height:1.6">${d}</p><div style="margin-top:14px"><span style="font-size:11px;background:rgba(0,229,160,.1);color:var(--acc);font-weight:700;padding:4px 12px;border-radius:20px">DISPONIBLE</span></div></div>`).join("")}</div></div>`}
+
+// DASHBOARD
+function pageDash(){
+  const cd=[{d:"Lun",v:245,l:18},{d:"Mar",v:310,l:24},{d:"Mié",v:280,l:21},{d:"Jue",v:420,l:35},{d:"Vie",v:380,l:29},{d:"Sáb",v:520,l:42},{d:"Dom",v:290,l:18}];
+  const fn=[{l:"Visitas",v:2445,p:100,c:"#00E5A0"},{l:"Leads",v:187,p:7.6,c:"#0EA5E9"},{l:"Demos",v:54,p:2.2,c:"#A855F7"},{l:"Clientes",v:12,p:.5,c:"#F97316"}];
+  return`<div class="fu">${ph("📊 Dashboard","Tu marketing en tiempo real · Lima, Perú")}
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:16px">${kpi("👁️","Visitas totales","12,445",18,"#00E5A0")}${kpi("🎯","Leads nuevos","187",24,"#0EA5E9")}${kpi("💰","Conversiones","34",-5,"#F97316")}${kpi("📈","Revenue estimado","S/3,240",32,"#A855F7")}</div>
+  <div class="g2" style="margin-bottom:16px">
+    <div class="card" style="padding:22px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div><h3 class="sy" style="font-size:15px;font-weight:700">Visitas y Leads</h3><p style="font-size:12px;color:var(--t2)">Últimos 7 días</p></div><div style="display:flex;gap:12px;font-size:11px;color:var(--t2)"><span><span style="width:10px;height:2px;background:#00E5A0;display:inline-block;border-radius:2px;vertical-align:middle;margin-right:4px"></span>Visitas</span><span><span style="width:10px;height:2px;background:#0EA5E9;display:inline-block;border-radius:2px;vertical-align:middle;margin-right:4px"></span>Leads</span></div></div>
+      <div style="display:flex;align-items:flex-end;gap:4px;height:130px">${cd.map(d=>`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px"><div style="display:flex;gap:2px;align-items:flex-end;height:110px;width:100%"><div style="flex:1;background:#00E5A0;border-radius:4px 4px 0 0;height:${Math.round(d.v/520*100)}%"></div><div style="flex:1;background:#0EA5E9;border-radius:4px 4px 0 0;height:${Math.round(d.l/42*80)}%"></div></div><span style="font-size:10px;color:var(--t2)">${d.d}</span></div>`).join("")}</div>
+    </div>
+    <div class="card" style="padding:22px"><h3 class="sy" style="font-size:15px;font-weight:700;margin-bottom:4px">Embudo de ventas</h3><p style="font-size:12px;color:var(--t2);margin-bottom:18px">Este mes</p>${fn.map(f=>`<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:12px;color:var(--t2)">${f.l}</span><span style="font-size:13px;font-weight:700;color:${f.c}">${f.v.toLocaleString()}</span></div>${mb(f.p,f.c)}</div>`).join("")}</div>
+  </div>
+  <div class="g2">
+    <div class="card" style="padding:22px"><h3 class="sy" style="font-size:15px;font-weight:700;margin-bottom:14px">Actividad reciente</h3>${[["🟢","Nuevo lead: Spa Serenidad Lima","Hace 5 min"],["💬","Chatbot: 3 conversaciones activas","Hace 12 min"],["⭐","Nueva reseña 5★ en Google","Hace 1 hora"],["📣","Campaña Mayo: 5 leads hoy","Hace 2h"],["✅","Clínica Salud Total — Cerrado","Hace 3h"]].map(([e,t,ti])=>`<div style="display:flex;gap:10px;align-items:center;padding:9px 12px;background:var(--card2);border-radius:10px;margin-bottom:8px;border:1px solid var(--brd)"><span style="font-size:17px">${e}</span><div><p style="font-size:12px;font-weight:500;margin-bottom:1px">${t}</p><p style="font-size:11px;color:var(--t3)">${ti}</p></div></div>`).join("")}</div>
+    <div class="card" style="padding:22px"><h3 class="sy" style="font-size:15px;font-weight:700;margin-bottom:14px">Campañas activas</h3>${S.campaigns.filter(c=>c.estado==="Activa").map(c=>`<div style="margin-bottom:14px;padding:14px 16px;background:var(--card2);border-radius:12px;border:1px solid var(--brd)"><div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="font-size:13px;font-weight:700">${c.name}</span>${bdg(c.estado)}</div>${mb(Math.min(100,Math.round(c.gastado/c.presupuesto*100)))}<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--t2);margin-top:5px"><span>S/${c.gastado}/S/${c.presupuesto}</span><span>${c.leads} leads</span></div></div>`).join("")}<div style="padding:14px;background:rgba(0,229,160,.05);border-radius:12px;border:1px solid rgba(0,229,160,.15);text-align:center"><p style="font-size:13px;color:var(--acc);font-weight:600">Revenue total del mes</p><p class="sy" style="font-size:26px;font-weight:800;color:var(--acc);margin-top:4px">S/3,240</p></div></div>
+  </div></div>`
+}
+
+// CHATBOT
+function pageChatbot(){
+  const t=S.tBot;
+  const msgHTML=S.chatMsgs.map(m=>`<div style="display:flex;justify-content:${m.f==="user"?"flex-end":"flex-start"}"><div class="${m.f==="user"?"cbu":"cbb"}">${m.t}</div></div>`).join("");
+  return`<div class="fu">${ph("🤖 Chatbot IA","Configura y prueba tu asistente de ventas 24/7")}
+  <div style="display:flex;gap:8px;margin-bottom:16px">${tb("ct","💬 Chat",t==="chat")}${tb("ft","⚡ Flujos",t==="flujos")}${tb("st","📊 Stats",t==="stats")}</div>
+  ${t==="chat"?`<div class="g2">
+  <div class="card" style="display:flex;flex-direction:column;height:480px">
+    <div style="padding:13px 18px;border-bottom:1px solid var(--brd);display:flex;align-items:center;gap:10px"><div style="width:38px;height:38px;border-radius:11px;background:#00E5A015;display:flex;align-items:center;justify-content:center;font-size:20px">🤖</div><div><p style="font-weight:700;font-size:13px">Asistente Virtual</p><p style="font-size:11px;color:#00E5A0">● En línea</p></div></div>
+    <div id="cm" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px">${msgHTML}</div>
+    <div style="padding:12px 16px;border-top:1px solid var(--brd);display:flex;gap:8px"><input class="inp" id="ci" placeholder="Escribe un mensaje..." onkeypress="if(event.key==='Enter')sendChat()" style="flex:1"><button class="bp" onclick="sendChat()" style="padding:9px 14px">➤</button></div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:10px">
+    ${[["💬","Chats hoy","24","#00E5A0"],["📊","Respuestas","98%","#0EA5E9"],["🎯","Leads bot","7","#A855F7"],["⭐","Satisfac.","4.8/5","#F59E0B"]].map(([e,l,v,c])=>`<div class="card" style="padding:16px 18px"><div style="display:flex;gap:10px;align-items:center"><span style="font-size:22px">${e}</span><div><p style="font-size:11px;color:var(--t2);margin-bottom:2px">${l}</p><p class="sy" style="font-size:22px;font-weight:800;color:${c}">${v}</p></div></div></div>`).join("")}
+    <div class="card" style="padding:16px"><p class="lbl">Prueba rápida</p>${["¿Cuáles son los precios?","¿Cuál es el horario?","Quiero agendar una cita"].map(s=>`<button onclick="qChat('${s}')" style="display:block;width:100%;text-align:left;background:var(--card2);border:1px solid var(--brd);border-radius:8px;padding:7px 10px;font-size:12px;color:var(--t2);cursor:pointer;margin-bottom:6px;font-family:'Outfit',sans-serif">${s}</button>`).join("")}</div>
+  </div></div>`
+  :t==="flujos"?`<div class="card" style="padding:22px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px"><h3 class="sy" style="font-size:15px;font-weight:700">Flujos automáticos</h3><button class="bp" onclick="newFlow()">+ Nuevo</button></div>
+  ${S.botFlows.map(f=>`<div style="padding:15px 18px;background:var(--card2);border-radius:12px;border:1px solid ${f.activo?"rgba(0,229,160,.2)":"var(--brd)"};margin-bottom:10px"><div style="display:flex;justify-content:space-between;gap:16px"><div style="flex:1"><p class="lbl">Palabras clave</p><p style="font-size:13px;font-weight:700;margin-bottom:8px;color:var(--acc)">${f.trigger}</p><p style="font-size:11px;color:var(--t);line-height:1.5;white-space:pre-line">${f.respuesta}</p></div><div style="display:flex;align-items:flex-start;gap:8px;flex-shrink:0"><button class="tog" onclick="togFlow(${f.id})" style="background:${f.activo?"var(--acc)":"var(--brd)"}"><div class="tth" style="left:${f.activo?21:3}px"></div></button><button onclick="editFlow(${f.id})" style="background:none;border:none;cursor:pointer;font-size:16px">✏️</button><button onclick="delFlow(${f.id})" style="background:none;border:none;cursor:pointer;font-size:16px">🗑️</button></div></div></div>`).join("")}</div>`
+  :`<div class="g2"><div class="card" style="padding:22px"><h3 class="sy" style="font-size:15px;font-weight:700;margin-bottom:16px">Chats por día</h3><div style="display:flex;align-items:flex-end;gap:8px;height:150px">${[14,19,16,28,23,34,14].map((v,i)=>`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px"><div style="width:100%;background:var(--acc);border-radius:6px 6px 0 0;height:${Math.round(v/34*100)}%;min-height:4px"></div><span style="font-size:10px;color:var(--t2)">${["L","M","Mi","J","V","S","D"][i]}</span></div>`).join("")}</div></div><div class="card" style="padding:22px"><h3 class="sy" style="font-size:15px;font-weight:700;margin-bottom:18px">Consultas frecuentes</h3>${[["Precios",42],["Horarios",28],["Ubicación",18],["Citas",12]].map(([t,p])=>`<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:13px">${t}</span><span style="font-size:13px;font-weight:700;color:var(--acc)">${p}%</span></div>${mb(p)}</div>`).join("")}</div></div>`}
+  </div>`
+}
+function sendChat(){const i=document.getElementById("ci");if(!i||!i.value.trim())return;const msg=i.value.trim();i.value="";S.chatMsgs.push({f:"user",t:msg});const q=msg.toLowerCase();let r="Entendido. Un agente te contactará pronto. 😊";S.botFlows.filter(f=>f.activo).forEach(f=>{if(f.trigger.split(",").some(t=>q.includes(t.trim())))r=f.respuesta});const box=document.getElementById("cm");if(box){box.innerHTML+=`<div style="display:flex;justify-content:flex-end"><div class="cbu">${msg}</div></div>`;box.scrollTop=box.scrollHeight;}setTimeout(()=>{S.chatMsgs.push({f:"bot",t:r});if(box){box.innerHTML+=`<div style="display:flex;justify-content:flex-start"><div class="cbb">${r}</div></div>`;box.scrollTop=box.scrollHeight;}},900);}
+function qChat(msg){const i=document.getElementById("ci");if(i){i.value=msg;sendChat();}}
+function togFlow(id){S.botFlows=S.botFlows.map(f=>f.id===id?{...f,activo:!f.activo}:f);render();}
+function delFlow(id){S.botFlows=S.botFlows.filter(f=>f.id!==id);render();}
+function newFlow(){openModal(`<h3 class="sy" style="font-size:17px;font-weight:700;margin-bottom:20px">Nuevo flujo</h3><div class="col">${ff("Palabras clave (coma)","<input class='inp' id='ft' placeholder='hola, buenos días'>")}${ff("Respuesta","<textarea class='inp' id='fr' rows='4'></textarea>")}</div><div style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px"><button class="bg" onclick="closeModal()">Cancelar</button><button class="bp" onclick="saveNF()">💾 Guardar</button></div>`);}
+function saveNF(){const t=document.getElementById("ft").value,r=document.getElementById("fr").value;if(t&&r){S.botFlows.push({id:Date.now(),trigger:t,respuesta:r,activo:true});closeModal();render();}}
+function editFlow(id){const f=S.botFlows.find(x=>x.id===id);if(!f)return;const trg=f.trigger.replace(/['"]/g,function(c){return c==="'"?"&#39;":"&quot;";});const res=f.respuesta.replace(/</g,"&lt;");openModal(`<h3 class="sy" style="font-size:17px;font-weight:700;margin-bottom:20px">Editar flujo</h3><div class="col">${ff("Palabras clave","<input class=\'inp\' id=\'eft\' value=\'"+trg+"\' style=\'width:100%\'>")}${ff("Respuesta","<textarea class=\'inp\' id=\'efr\' rows=\'4\'>"+res+"</textarea>")}</div><div style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px"><button class="bg" onclick="closeModal()">Cancelar</button><button class="bp" onclick="saveEF(${f.id})">💾 Guardar</button></div>`);}
+function saveEF(id){const t=document.getElementById("eft").value,r=document.getElementById("efr").value;if(t&&r){S.botFlows=S.botFlows.map(f=>f.id===id?{...f,trigger:t,respuesta:r}:f);closeModal();render();}}
+
+// CRM
+function pageCRM(){
+  const vis=S.leads.filter(l=>(S.flead==="Todos"||l.status===S.flead)&&(l.name.toLowerCase().includes(S.slead.toLowerCase())||l.contact.toLowerCase().includes(S.slead.toLowerCase())));
+  const tot={c:S.leads.filter(l=>l.status==="Caliente").length,cl:S.leads.filter(l=>l.status==="Cerrado").length};
+  return`<div class="fu">${ph("👥 CRM Clientes","Gestiona leads y seguimiento de ventas")}
+  <div style="display:flex;justify-content:flex-end;margin-bottom:16px"><button class="bp" onclick="newLead()">+ Nuevo lead</button></div>
+  <div class="g4" style="margin-bottom:16px">${[["📊 Total",S.leads.length,"var(--acc)"],["🔥 Calientes",tot.c,"#EF4444"],["✅ Cerrados",tot.cl,"#10B981"],["📈 Tasa",Math.round(tot.cl/S.leads.length*100)+"%","#A855F7"]].map(([l,v,c])=>`<div class="card" style="padding:15px 18px"><p style="font-size:11px;color:var(--t2);margin-bottom:5px">${l}</p><p class="sy" style="font-size:26px;font-weight:800;color:${c}">${v}</p></div>`).join("")}</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px">${["Todos","Caliente","Tibio","Frío","Cerrado"].map(s=>`<button onclick="fLead('${s}')" style="padding:6px 14px;border-radius:20px;border:1px solid ${S.flead===s?"var(--acc)":"var(--brd)"};background:${S.flead===s?"rgba(0,229,160,.1)":"var(--card2)"};color:${S.flead===s?"var(--acc)":"var(--t2)"};font-family:'Outfit',sans-serif;font-weight:600;font-size:12px;cursor:pointer">${s}</button>`).join("")}<input class="inp" value="${S.slead}" oninput="sLead(this.value)" placeholder="🔍 Buscar..." style="margin-left:auto;width:200px"></div>
+  <div class="card" style="overflow:hidden"><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Negocio</th><th>Contacto</th><th>Teléfono</th><th>Fuente</th><th>Estado</th><th>Notas</th><th></th></tr></thead><tbody>${vis.map(l=>`<tr><td><div style="display:flex;align-items:center;gap:10px">${av(l.name,32)}<span style="font-weight:600;font-size:13px">${l.name}</span></div></td><td style="color:var(--t2)">${l.contact}</td><td style="color:var(--t2);font-size:12px">${l.phone}</td><td><span style="font-size:11px;background:var(--card2);padding:3px 10px;border-radius:20px;color:var(--t2)">${l.source}</span></td><td>${bdg(l.status)}</td><td style="font-size:12px;color:var(--t2);max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${l.notes}</td><td><button onclick="editLead(${l.id})" style="background:none;border:none;cursor:pointer;font-size:15px">✏️</button><button onclick="delLead(${l.id})" style="background:none;border:none;cursor:pointer;font-size:15px">🗑️</button></td></tr>`).join("")}</tbody></table></div></div></div>`
+}
+function fLead(s){S.flead=s;render();}
+function sLead(v){S.slead=v;render();}
+function newLead(){openModal(`<h3 class="sy" style="font-size:17px;font-weight:700;margin-bottom:20px">Nuevo lead</h3><div style="display:grid;grid-template-columns:1fr 1fr;gap:13px"><div style="grid-column:1/-1">${ff("Nombre del negocio","<input class='inp' id='nln'>")}</div>${ff("Contacto","<input class='inp' id='nlc'>")}<div>${ff("Teléfono","<input class='inp' id='nlp'>")}</div>${ff("Estado","<select class='inp' id='nls'><option>Frío</option><option>Tibio</option><option>Caliente</option><option>Cerrado</option></select>")}<div>${ff("Fuente","<select class='inp' id='nlf'><option>Instagram</option><option>Facebook</option><option>WhatsApp</option><option>Referido</option><option>TikTok</option><option>Web</option></select>")}</div><div style="grid-column:1/-1">${ff("Notas","<textarea class='inp' id='nlno' rows='2'></textarea>")}</div></div><div style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px"><button class="bg" onclick="closeModal()">Cancelar</button><button class="bp" onclick="saveLead()">💾 Guardar</button></div>`);}
+function saveLead(){const n=document.getElementById("nln").value;if(!n)return;S.leads.push({id:Date.now(),name:n,contact:document.getElementById("nlc").value,phone:document.getElementById("nlp").value,email:"",status:document.getElementById("nls").value,source:document.getElementById("nlf").value,notes:document.getElementById("nlno").value});closeModal();render();}
+function editLead(id){const l=S.leads.find(x=>x.id===id);if(!l)return;const nm=l.name.replace(/['"<>]/g,function(c){return{"'":"&#39;",'"':"&quot;","<":"&lt;",">":"&gt;"}[c]||c;});const ct=l.contact.replace(/['"]/g,function(c){return c==="'"?"&#39;":"&quot;";});const opts1=["Frío","Tibio","Caliente","Cerrado"].map(s=>"<option"+(s===l.status?" selected":"")+">"+s+"</option>").join("");const opts2=["Instagram","Facebook","WhatsApp","Referido","TikTok","Web"].map(s=>"<option"+(s===l.source?" selected":"")+">"+s+"</option>").join("");openModal(`<h3 class="sy" style="font-size:17px;font-weight:700;margin-bottom:20px">Editar lead</h3><div style="display:grid;grid-template-columns:1fr 1fr;gap:13px"><div style="grid-column:1/-1">${ff("Negocio","<input class=\'inp\' id=\'eln\' value=\'"+nm+"\'>")}</div>${ff("Contacto","<input class=\'inp\' id=\'elc\' value=\'"+ct+"\'>")}<div>${ff("Teléfono","<input class=\'inp\' id=\'elp\' value=\'"+l.phone+"\'>")}</div>${ff("Estado","<select class=\'inp\' id=\'els\'>"+opts1+"</select>")}<div>${ff("Fuente","<select class=\'inp\' id=\'elf\'>"+opts2+"</select>")}</div><div style="grid-column:1/-1">${ff("Notas","<textarea class=\'inp\' id=\'eln2\' rows=\'2\'>"+l.notes+"</textarea>")}</div></div><div style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px"><button class="bg" onclick="closeModal()">Cancelar</button><button class="bp" onclick="updateLead(${l.id})">💾 Guardar</button></div>`);}
+function updateLead(id){S.leads=S.leads.map(l=>l.id===id?{...l,name:document.getElementById("eln").value,contact:document.getElementById("elc").value,phone:document.getElementById("elp").value,status:document.getElementById("els").value,source:document.getElementById("elf").value,notes:document.getElementById("eln2").value}:l);closeModal();render();}
+function delLead(id){S.leads=S.leads.filter(l=>l.id!==id);render();}
+
+// CAMPAIGNS
+function pageCamp(){
+  const t=S.tCamp;const rv=S.roi;const ven=Math.round(rv.leads*rv.cierre/100);const rev=ven*rv.ticket;const roi=rv.inv>0?Math.round((rev-rv.inv)/rv.inv*100):0;
+  return`<div class="fu">${ph("📣 Campañas","Gestiona y mide el ROI de tus campañas")}
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div style="display:flex;gap:8px">${tb("lt","📋 Campañas",t==="list")}${tb("rt","📊 ROI",t==="roi")}</div>${t==="list"?`<button class="bp" onclick="newCamp()">+ Nueva</button>`:""}</div>
+  ${t==="list"?`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px">${S.campaigns.map(c=>`<div class="card" style="padding:22px"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px"><div><h3 style="font-size:15px;font-weight:700;margin-bottom:3px">${c.name}</h3><span style="font-size:12px;color:var(--t2)">🎯 ${c.objetivo}</span></div>${bdg(c.estado)}</div><div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:11px;color:var(--t2)">Presupuesto</span><span style="font-size:11px;font-weight:700">${c.presupuesto>0?Math.min(100,Math.round(c.gastado/c.presupuesto*100)):0}%</span></div>${mb(c.presupuesto>0?Math.min(100,Math.round(c.gastado/c.presupuesto*100)):0)}<div style="display:flex;justify-content:space-between;margin-top:5px;font-size:11px;color:var(--t2)"><span>S/${c.gastado} gastado</span><span>S/${c.presupuesto} total</span></div></div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">${[["Leads",c.leads,"#0EA5E9"],["Ventas",c.ventas,"#10B981"],["ROI",c.presupuesto>0?Math.round((c.ventas*400-c.presupuesto)/c.presupuesto*100)+"%":"—","#A855F7"]].map(([l,v,c2])=>`<div style="text-align:center;padding:10px 6px;background:var(--card2);border-radius:10px"><p class="sy" style="font-size:17px;font-weight:800;color:${c2}">${v}</p><p style="font-size:10px;color:var(--t2)">${l}</p></div>`).join("")}</div></div>`).join("")}</div>`
+  :`<div class="card" style="padding:24px"><h3 class="sy" style="font-size:15px;font-weight:700;margin-bottom:20px">Calculadora de ROI</h3><div class="g2"><div class="col">${["inv:Inversión (S/)","leads:Leads esperados","cierre:Tasa de cierre (%)","ticket:Ticket promedio (S/)"].map(x=>{const[k,l]=x.split(":");return ff(l,`<input class='inp' type='number' value='${rv[k]}' oninput="setROI('${k}',this.value)">`);}).join("")}</div><div class="col" style="justify-content:center">${[["Ventas estimadas",ven,"#0EA5E9"],["Revenue esperado","S/"+rev.toLocaleString(),"#10B981"],["Ganancia neta","S/"+(rev-rv.inv).toLocaleString(),rev>rv.inv?"#00E5A0":"#EF4444"],["ROI",roi+"%",roi>=0?"#00E5A0":"#EF4444"]].map(([l,v,c])=>`<div style="padding:14px 16px;background:var(--card2);border-radius:12px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:var(--t2)">${l}</span><span class="sy" style="font-size:20px;font-weight:800;color:${c}">${v}</span></div>`).join("")}</div></div></div>`}
+  </div>`
+}
+function setROI(k,v){S.roi[k]=+v;render();}
+function newCamp(){openModal(`<h3 class="sy" style="font-size:17px;font-weight:700;margin-bottom:20px">Nueva campaña</h3><div class="col">${ff("Nombre","<input class='inp' id='ncn' placeholder='Promo...'>")}${ff("Objetivo","<select class='inp' id='nco'><option>Leads</option><option>Conversión</option><option>Awareness</option><option>Retención</option></select>")}${ff("Presupuesto (S/)","<input class='inp' id='ncp' type='number' placeholder='500'>")}</div><div style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px"><button class="bg" onclick="closeModal()">Cancelar</button><button class="bp" onclick="saveCamp()">✅ Crear</button></div>`);}
+function saveCamp(){const n=document.getElementById("ncn").value;if(!n)return;S.campaigns.push({id:Date.now(),name:n,objetivo:document.getElementById("nco").value,presupuesto:+(document.getElementById("ncp").value)||0,gastado:0,leads:0,ventas:0,estado:"Activa"});closeModal();render();}
+
+// SOCIAL
+function pageSocial(){
+  const t=S.tSoc;const PC={Instagram:"#E1306C",Facebook:"#1877F2",TikTok:"#6b0e7a",WhatsApp:"#25D366"};
+  const posts=[{f:"09/05",p:"Instagram",c:"Post promocional del servicio estrella",h:"10:00",e:"Programado"},{f:"10/05",p:"Facebook",c:"Testimonial de cliente satisfecho",h:"12:00",e:"Programado"},{f:"11/05",p:"Instagram",c:"Story: Detrás de cámaras",h:"18:00",e:"Borrador"},{f:"12/05",p:"TikTok",c:"Video: Proceso de atención al cliente",h:"15:00",e:"Programado"},{f:"14/05",p:"WhatsApp",c:"Mensaje masivo: Promo fin de semana",h:"09:00",e:"Borrador"}];
+  return`<div class="fu">${ph("📱 Redes Sociales","Planifica y gestiona tu contenido digital")}
+  <div style="display:flex;gap:8px;margin-bottom:16px">${tb("calt","📅 Calendario",t==="calendar")}${tb("ideat","💡 Ideas",t==="ideas")}${tb("hasht","# Hashtags",t==="hashtags")}</div>
+  ${t==="calendar"?`<div class="card" style="padding:22px"><h3 class="sy" style="font-size:15px;font-weight:700;margin-bottom:18px">Publicaciones programadas</h3>${posts.map(p=>`<div style="display:flex;align-items:center;gap:14px;padding:13px 15px;background:var(--card2);border-radius:12px;margin-bottom:10px;border:1px solid var(--brd)"><div style="width:6px;height:44px;border-radius:3px;background:${PC[p.p]||"var(--acc)"};flex-shrink:0"></div><div style="flex:1"><div style="display:flex;align-items:center;gap:8px;margin-bottom:3px"><span style="font-size:12px;font-weight:700;color:${PC[p.p]}">${p.p}</span><span style="font-size:11px;color:var(--t2)">${p.f} – ${p.h}</span></div><p style="font-size:13px">${p.c}</p></div>${bdg(p.e)}</div>`).join("")}</div>`
+  :t==="ideas"?`<div class="g2">${[{r:"🍽️ Restaurantes",i:["Plato del día con foto HD","Historia de la receta","Detrás de cámaras cocina","Testimonio de cliente","Promo fin de semana","Combo del mes"]},{r:"💆 Spa & Salón",i:["Antes y después","Técnica de tratamiento","Paquete del mes","Tip cuidado en casa","Nuevo servicio","Terapeuta del mes"]},{r:"👗 Moda",i:["Lookbook nueva colección","Outfit del día","Descuento flash 24h","Cómo combinar prendas","Nueva llegada","Guía de tallas"]},{r:"📅 Fechas clave Perú",i:["14 Feb: San Valentín","8 Mar: Día Mujer","14 May: Día Madre","28 Jul: Fiestas Patrias","Navidad: paquetes regalo","Día del Trabajador 1 May"]}].map(g=>`<div class="card" style="padding:20px"><h4 style="font-size:14px;font-weight:700;margin-bottom:12px">${g.r}</h4>${g.i.map(x=>`<div style="display:flex;gap:8px;padding:7px 10px;background:var(--card2);border-radius:8px;margin-bottom:6px;font-size:12px;color:var(--t2)"><span style="color:var(--acc);flex-shrink:0">→</span>${x}</div>`).join("")}</div>`).join("")}</div>`
+  :`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px">${[{r:"🍽️ Restaurantes Lima",t:["#RestaurantesLima","#ComidaPeruana","#GastronomiaLima","#FoodLima","#PlatosPeruanos","#AlmuerzosLima"]},{r:"💆 Spa & Bienestar",t:["#SpaLima","#Bienestar","#Relajacion","#MasajeLima","#BellezaLima","#SelfCare"]},{r:"👗 Moda Lima",t:["#ModaLima","#FashionLima","#RopaLima","#Outfit","#TendenciasLima","#ShoppingLima"]},{r:"📱 Marketing IA",t:["#MarketingLima","#NegociosLima","#MarketingDigital","#EmprendedorPeru","#AgentesIA","#IAPerú"]}].map(g=>`<div class="card" style="padding:18px"><h4 style="font-size:13px;font-weight:700;margin-bottom:12px">${g.r}</h4><div style="display:flex;flex-wrap:wrap;gap:6px">${g.t.map(tag=>`<span onclick="navigator.clipboard&&navigator.clipboard.writeText('${tag}')" title="Clic para copiar" style="background:rgba(0,229,160,.1);color:var(--acc);padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer">${tag}</span>`).join("")}</div></div>`).join("")}</div>`}
+  </div>`
+}
+
+// ANALYTICS
+function pageAnalytics(){
+  return`<div class="fu">${ph("📈 Analytics Avanzado","Métricas profundas de tu marketing digital")}
+  <div class="g2" style="margin-bottom:16px">
+    <div class="card" style="padding:22px"><h3 class="sy" style="font-size:15px;font-weight:700;margin-bottom:16px">Rendimiento semanal</h3><div style="display:flex;align-items:flex-end;gap:6px;height:140px">${[{d:"L",v:245,l:18},{d:"M",v:310,l:24},{d:"Mi",v:280,l:21},{d:"J",v:420,l:35},{d:"V",v:380,l:29},{d:"S",v:520,l:42},{d:"D",v:290,l:18}].map(d=>`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px"><div style="display:flex;gap:2px;align-items:flex-end;height:120px;width:100%"><div style="flex:1;background:#0EA5E9;border-radius:4px 4px 0 0;height:${Math.round(d.v/520*100)}%"></div><div style="flex:1;background:#00E5A0;border-radius:4px 4px 0 0;height:${Math.round(d.l/42*80)}%"></div></div><span style="font-size:10px;color:var(--t2)">${d.d}</span></div>`).join("")}</div></div>
+    <div class="card" style="padding:22px"><h3 class="sy" style="font-size:15px;font-weight:700;margin-bottom:18px">Métricas clave</h3>${[["🔗 Conversión","1.8%","↑ 0.3%","#10B981"],["👁️ Tiempo sitio","2:34 min","↑ 18s","#0EA5E9"],["🔄 Rebote","42%","↓ 5%","#F59E0B"],["💰 Costo/lead","S/12.40","↓ S/2.10","#A855F7"]].map(([l,v,c,col])=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--brd)"><div><p style="font-size:13px;font-weight:600;margin-bottom:2px">${l}</p><p style="font-size:11px;color:var(--t2)">${c} vs sem. anterior</p></div><span class="sy" style="font-size:20px;font-weight:800;color:${col}">${v}</span></div>`).join("")}</div>
+  </div>
+  <div class="card" style="padding:22px"><h3 class="sy" style="font-size:15px;font-weight:700;margin-bottom:16px">Revenue mensual acumulado</h3><div style="display:flex;align-items:flex-end;gap:16px;height:120px">${[{m:"Ene",r:800},{m:"Feb",r:1200},{m:"Mar",r:950},{m:"Abr",r:1800},{m:"May",r:3240}].map(m=>`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px"><span style="font-size:11px;color:var(--pur);font-weight:700">S/${m.r}</span><div style="width:100%;background:var(--pur);border-radius:6px 6px 0 0;height:${Math.round(m.r/3240*85)}%;min-height:4px"></div><span style="font-size:12px;color:var(--t2)">${m.m}</span></div>`).join("")}</div></div>
+  </div>`
+}
+
+// REVIEWS
+function pageReviews(){
+  return`<div class="fu">${ph("⭐ Reseñas & Reputación","Monitorea y gestiona tu reputación online")}
+  <div class="g4" style="margin-bottom:16px">${[["⭐ Promedio","4.5","#F59E0B"],["📊 Total",S.reviews.length,"var(--acc)"],["⏳ Sin resp.",S.reviews.filter(r=>!r.respondida).length,"#EF4444"],["🏆 5 Estrellas",S.reviews.filter(r=>r.rating===5).length,"#10B981"]].map(([l,v,c])=>`<div class="card" style="padding:15px 18px"><p style="font-size:11px;color:var(--t2);margin-bottom:5px">${l}</p><p class="sy" style="font-size:26px;font-weight:800;color:${c}">${v}</p></div>`).join("")}</div>
+  <div class="card" style="padding:22px">${S.reviews.map((r,i)=>`<div style="padding:16px 0;border-bottom:${i<S.reviews.length-1?"1px solid var(--brd)":"none"}"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px"><div style="display:flex;gap:10px;align-items:center">${av(r.autor,36,r.rating>=4?"#10B981":"#EF4444")}<div><p style="font-weight:700;font-size:13px">${r.autor}</p><div style="display:flex;gap:8px;align-items:center;margin-top:2px"><span style="font-size:11px;background:var(--card2);padding:2px 8px;border-radius:20px;color:var(--t2)">${r.plataforma}</span><span style="font-size:12px">${"⭐".repeat(r.rating)}</span><span style="font-size:10px;color:var(--t3)">${r.fecha}</span></div></div></div>${!r.respondida?`<button class="bp" style="font-size:11px;padding:6px 12px" onclick="respReview(${r.id})">Responder</button>`:`<span style="font-size:12px;color:#10B981;font-weight:600">✓ Respondida</span>`}</div><p style="font-size:13px;color:var(--t2);padding-left:46px;line-height:1.5">${r.texto}</p></div>`).join("")}</div>
+  </div>`
+}
+function respReview(id){S.reviews=S.reviews.map(r=>r.id===id?{...r,respondida:true}:r);render();}
+
+// FIDELIZACION
+function pageFidel(){
+  return`<div class="fu">${ph("🎁 Fidelización & Referidos","Retén y premia a tus mejores clientes")}
+  <div class="ga" style="margin-bottom:16px">${[["🏆","Programa de puntos","Ganan puntos por compra y los canjean por descuentos o premios."],["🔗","Sistema de referidos","Código único por cliente. Ganan si traen nuevos negocios."],["🎟️","Cupones de descuento","Crea y distribuye cupones con código, porcentaje y vencimiento."],["👑","Membresías VIP","Club exclusivo con beneficios especiales y precios preferenciales."]].map(([e,n,d])=>`<div class="card" style="padding:22px"><div style="font-size:28px;margin-bottom:10px">${e}</div><h3 style="font-size:14px;font-weight:700;margin-bottom:8px">${n}</h3><p style="font-size:13px;color:var(--t2);line-height:1.6">${d}</p></div>`).join("")}</div>
+  <div class="card" style="padding:22px"><h3 class="sy" style="font-size:15px;font-weight:700;margin-bottom:16px">🏆 Ranking de clientes</h3><table class="tbl"><thead><tr><th>#</th><th>Cliente</th><th>Nivel</th><th>Puntos</th><th>Beneficio</th></tr></thead><tbody>${[{c:"Gym FitPower",p:2100,n:"Platinum",v:"#A855F7"},{c:"Restaurante El Peruano",p:1250,n:"Gold",v:"#F59E0B"},{c:"Spa Serenidad",p:890,n:"Silver",v:"#9CA3AF"}].map((p,i)=>`<tr><td><span style="font-size:18px">${["🥇","🥈","🥉"][i]}</span></td><td style="font-weight:600">${p.c}</td><td><span style="font-size:12px;font-weight:700;color:${p.v}">${p.n}</span></td><td><span class="sy" style="font-size:16px;font-weight:800;color:${p.v}">${p.p.toLocaleString()}</span></td><td style="font-size:12px;color:var(--t2)">${["20% desc.","15% desc.","10% desc."][i]} próx. compra</td></tr>`).join("")}</tbody></table></div>
+  </div>`
+}
+
+// WHITE LABEL
+function pageWL(){
+  const w=S.wl;const ini=w.nombre.split(" ").map(x=>x[0]).join("").slice(0,2).toUpperCase();
+  return`<div class="fu">${ph("✨ White-Label","Personaliza el agente para cada cliente tuyo")}
+  <div class="g2">
+    <div class="card" style="padding:22px"><h3 class="sy" style="font-size:15px;font-weight:700;margin-bottom:18px">⚙️ Configuración del cliente</h3><div class="col">
+      ${ff("Nombre del negocio",`<input class='inp' value='${w.nombre}' oninput="S.wl.nombre=this.value;updWL()">`)}
+      ${ff("Rubro",`<select class='inp' onchange="S.wl.rubro=this.value;updWL()">${["Restaurante","Spa","Salón de belleza","Galería de ropa","Clínica","Gimnasio","Hotel","Otro"].map(r=>`<option${r===w.rubro?" selected":""}>${r}</option>`).join("")}</select>`)}
+      ${ff("Descripción",`<textarea class='inp' rows='2' oninput="S.wl.descripcion=this.value;updWL()" style="resize:none">${w.descripcion}</textarea>`)}
+      <div class="g2">${ff("Color primario",`<div style="display:flex;gap:8px"><input type='color' value='${w.c1}' oninput="S.wl.c1=this.value;updWL()" style="width:40px;height:36px;border:none;background:none;cursor:pointer;border-radius:8px"><input class='inp' value='${w.c1}' oninput="S.wl.c1=this.value;updWL()" style="flex:1;font-size:12px"></div>`)} <div>${ff("Color secundario",`<div style="display:flex;gap:8px"><input type='color' value='${w.c2}' oninput="S.wl.c2=this.value;updWL()" style="width:40px;height:36px;border:none;background:none;cursor:pointer;border-radius:8px"><input class='inp' value='${w.c2}' oninput="S.wl.c2=this.value;updWL()" style="flex:1;font-size:12px"></div>`)}</div></div>
+      ${ff("Teléfono",`<input class='inp' value='${w.tel}' oninput="S.wl.tel=this.value">`)}
+      ${ff("Email",`<input class='inp' value='${w.email}' oninput="S.wl.email=this.value">`)}
+      <button class="bp" onclick="saveWL()" id="wlb" style="justify-content:center;padding:11px">💾 Guardar configuración</button>
+    </div></div>
+    <div>
+      <div class="card" style="padding:22px;margin-bottom:14px"><h3 class="sy" style="font-size:15px;font-weight:700;margin-bottom:16px">👁️ Vista previa en vivo</h3>
+        <div id="wlprev" style="background:#050810;border-radius:14px;overflow:hidden;border:1px solid var(--brd)">
+          <div style="padding:12px 18px;background:#0F1420;border-bottom:1px solid #1E2D45;display:flex;align-items:center;gap:10px">
+            <div style="width:34px;height:34px;border-radius:10px;background:${w.c1}20;border:2px solid ${w.c1}40;display:flex;align-items:center;justify-content:center;font-size:13px;color:${w.c1};font-weight:800;font-family:'Syne',sans-serif">${ini}</div>
+            <div><p style="font-weight:700;font-size:13px;color:#E8F0FE">${w.nombre}</p><p style="font-size:10px;color:#7B8FAD">${w.rubro}</p></div>
+            <div style="margin-left:auto;width:8px;height:8px;border-radius:50%;background:${w.c1}"></div>
+          </div>
+          <div style="padding:14px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">${["Visitas","Leads","Campañas","Clientes"].map((k,i)=>`<div style="padding:9px 12px;background:#141B2D;border-radius:10px;border:1px solid #1E2D45"><p style="font-size:9px;color:#7B8FAD;margin-bottom:3px">${k}</p><p style="font-size:15px;font-weight:800;color:${i%2===0?w.c1:w.c2};font-family:'Syne',sans-serif">${["1,240","87","3","24"][i]}</p></div>`).join("")}</div>
+            <div style="height:5px;background:#1E2D45;border-radius:10px;overflow:hidden;margin-bottom:10px"><div style="height:100%;width:65%;background:linear-gradient(90deg,${w.c1},${w.c2});border-radius:10px"></div></div>
+            <p style="font-size:10px;color:#4A5568;text-align:center">${w.descripcion}</p>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="padding:18px"><p class="lbl">Contacto del cliente</p>${[["📞",w.tel],["📧",w.email]].map(([e,v])=>`<div style="display:flex;gap:10px;margin-bottom:8px;font-size:13px;color:var(--t2)"><span>${e}</span><span>${v}</span></div>`).join("")}</div>
+    </div>
+  </div></div>`
+}
+function updWL(){const ct=document.getElementById("ct");if(ct)ct.innerHTML=pageWL();}
+function saveWL(){const b=document.getElementById("wlb");if(b){b.textContent="✅ ¡Guardado!";setTimeout(()=>{b.textContent="💾 Guardar configuración";},2000);}}
+
+// USERS
+function pageUsers(){
+  const RC={Admin:"#A855F7",Agente:"#00E5A0",Viewer:"#0EA5E9"};
+  return`<div class="fu">${ph("🔐 Usuarios","Gestiona el acceso al sistema")}
+  <div style="display:flex;justify-content:flex-end;margin-bottom:16px"><button class="bp" onclick="newUser()">+ Nuevo usuario</button></div>
+  <div class="g3" style="margin-bottom:16px">${[["👥 Total",S.users.length,"var(--acc)"],["✅ Activos",S.users.filter(u=>u.active).length,"#10B981"],["🔒 Inactivos",S.users.filter(u=>!u.active).length,"#6B7280"]].map(([l,v,c])=>`<div class="card" style="padding:15px 18px"><p style="font-size:11px;color:var(--t2);margin-bottom:5px">${l}</p><p class="sy" style="font-size:26px;font-weight:800;color:${c}">${v}</p></div>`).join("")}</div>
+  <div class="card" style="overflow:hidden"><table class="tbl"><thead><tr><th>Usuario</th><th>Email</th><th>Rol</th><th>Estado</th><th>Permisos</th><th></th></tr></thead><tbody>${S.users.map(u=>`<tr><td><div style="display:flex;align-items:center;gap:10px">${av(u.name,34,RC[u.role])}<span style="font-weight:700;font-size:13px">${u.name}</span></div></td><td style="color:var(--t2);font-size:12px">${u.email}</td><td>${bdg(u.role)}</td><td><span style="font-size:12px;font-weight:600;padding:3px 10px;border-radius:20px;background:${u.active?"#10B98115":"#6B728015"};color:${u.active?"#10B981":"#9CA3AF"}">${u.active?"● Activo":"○ Inactivo"}</span></td><td style="font-size:12px;color:var(--t2)">${u.role==="Admin"?"Acceso total":u.role==="Agente"?"Leer y editar":"Solo lectura"}</td><td><button onclick="togUser(${u.id})" style="background:none;border:none;cursor:pointer;font-size:15px">${u.active?"🔒":"🔓"}</button><button onclick="delUser(${u.id})" style="background:none;border:none;cursor:pointer;font-size:15px">🗑️</button></td></tr>`).join("")}</tbody></table></div>
+  </div>`
+}
+function togUser(id){S.users=S.users.map(u=>u.id===id?{...u,active:!u.active}:u);render();}
+function delUser(id){S.users=S.users.filter(u=>u.id!==id);render();}
+function newUser(){openModal(`<h3 class="sy" style="font-size:17px;font-weight:700;margin-bottom:20px">Nuevo usuario</h3><div class="col">${ff("Nombre completo","<input class='inp' id='nun' placeholder='Juan Pérez'>")}${ff("Email","<input class='inp' id='nue' type='email' placeholder='juan@empresa.com'>")}${ff("Contraseña","<input class='inp' id='nup' type='password' placeholder='••••••••'>")}${ff("Rol","<select class='inp' id='nur'><option>Admin</option><option>Agente</option><option>Viewer</option></select>")}<div style="padding:12px 14px;background:var(--card2);border-radius:10px;border:1px solid var(--brd);font-size:12px;color:var(--t2)">ℹ️ <strong>Admin</strong>: acceso total · <strong>Agente</strong>: leer/editar · <strong>Viewer</strong>: solo lectura</div></div><div style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px"><button class="bg" onclick="closeModal()">Cancelar</button><button class="bp" onclick="saveUser()">✅ Crear</button></div>`);}
+function saveUser(){const n=document.getElementById("nun").value,e=document.getElementById("nue").value;if(n&&e){S.users.push({id:Date.now(),name:n,email:e,role:document.getElementById("nur").value,active:true});closeModal();render();}}
+
+// SETTINGS
+function pageSettings(){
+  return`<div class="fu">${ph("⚙️ Configuración","Ajustes generales del sistema")}
+  <div class="card" style="padding:24px;margin-bottom:16px"><h3 class="sy" style="font-size:15px;font-weight:700;margin-bottom:4px">📲 Instalar como app (PWA)</h3><p style="font-size:13px;color:var(--t2);margin-bottom:16px;line-height:1.6">Instala el Agente Marketing en tu dispositivo sin Play Store ni App Store.</p>
+  <div style="padding:14px 18px;background:var(--card2);border-radius:12px;border:1px solid var(--brd)">
+    <p style="font-size:13px;font-weight:600;color:var(--t);margin-bottom:10px">Instrucciones:</p>
+    <p style="font-size:13px;color:var(--t2);margin-bottom:6px;line-height:1.6">📱 <strong style="color:var(--t)">Android Chrome:</strong> Menú → "Añadir a pantalla de inicio"</p>
+    <p style="font-size:13px;color:var(--t2);margin-bottom:6px;line-height:1.6">🍎 <strong style="color:var(--t)">iPhone Safari:</strong> Compartir → "Añadir a inicio"</p>
+    <p style="font-size:13px;color:var(--t2);line-height:1.6">💻 <strong style="color:var(--t)">PC Chrome/Edge:</strong> Ícono de instalación en la barra de dirección</p>
+  </div></div>
+  <div class="ga">${[["🔔","Notificaciones","Alertas de leads, reseñas y mensajes del chatbot."],["🔒","Seguridad","Cambio de contraseña y sesiones activas."],["🔗","Integraciones","WhatsApp Business, Gmail, Google Analytics, Facebook Pixel."],["📊","Exportar datos","CRM, campañas y analytics en CSV o PDF."]].map(([e,n,d])=>`<div class="card" style="padding:22px"><div style="font-size:26px;margin-bottom:10px">${e}</div><h3 style="font-size:14px;font-weight:700;margin-bottom:8px">${n}</h3><p style="font-size:13px;color:var(--t2);line-height:1.6">${d}</p></div>`).join("")}</div>
+  </div>`
+}
+
+// ROUTER
+function getPage(){
+  const p=S.active;
+  if(p==="dashboard")return pageDash();
+  if(p==="chatbot")return pageChatbot();
+  if(p==="crm")return pageCRM();
+  if(p==="campaigns")return pageCamp();
+  if(p==="social")return pageSocial();
+  if(p==="analytics")return pageAnalytics();
+  if(p==="reviews")return pageReviews();
+  if(p==="fidelizacion")return pageFidel();
+  if(p==="whitelabel")return pageWL();
+  if(p==="usuarios")return pageUsers();
+  if(p==="settings")return pageSettings();
+  if(p==="restaurante")return pm("🍽️","Módulo Restaurante","Herramientas específicas para restaurantes",[["📲","Menú digital QR","Menú accesible con QR, actualizable en tiempo real."],["📆","Reservas online","Confirmación automática por WhatsApp."],["⚡","Promo del día","Publica especiales con un clic."],["🍱","Combos y ofertas","Precios, fotos y descripciones personalizadas."]]);
+  if(p==="spa")return pm("💆","Módulo Spa & Salón","Herramientas para spas y salones de belleza",[["🖼️","Galería de servicios","Catálogo visual con fotos HD y precios."],["🔔","Recordatorios automáticos","Recordatorio de cita por WhatsApp 24h antes."],["📋","Ficha del cliente","Historial de tratamientos, preferencias y notas."],["🎁","Paquetes especiales","Servicios combinados con precio especial."]]);
+  if(p==="ropa")return pm("👗","Módulo Ropa","Herramientas para tiendas y galerías de moda",[["📖","Catálogo digital","Productos con fotos, tallas, colores y precios."],["📸","Lookbook","Galería de colecciones para inspirar clientes."],["⚡","Flash sales","Ofertas relámpago con contador regresivo."],["❤️","Lista de deseos","Alerta automática cuando hay descuento."]]);
+  if(p==="visual")return pm("🎨","Creador Visual","Material de marketing sin necesitar diseñador",[["📋","Generador de flyers","Flyers profesionales con plantillas por rubro."],["📱","Templates de posts","Plantillas para Instagram, Facebook y TikTok."],["🎨","Paleta de marca","Colores y fuentes para consistencia total."],["🖼️","Banco de recursos","Imágenes gratis para publicaciones."]]);
+  if(p==="calendario")return pm("📅","Fechas Clave","Planifica campañas para fechas importantes",[["🇵🇪","Calendario Perú","Todas las fechas comerciales del año."],["🔔","Recordatorios previos","Alertas 2 semanas antes de cada fecha."],["💡","Ideas por fecha","Contenido sugerido para cada fecha."],["⏱️","Contador regresivo","Cuenta regresiva para próximas promos."]]);
+  if(p==="landing")return pm("🌐","Landing Page Mini","Tu presencia web dentro del agente",[["🌐","Mini sitio web","Página con galería y formulario de contacto."],["💬","Botón WhatsApp","Mensaje pre-escrito personalizable."],["🖼️","Galería de trabajos","Muestra tus mejores trabajos visualmente."],["📩","Captación de leads","Agrega prospectos al CRM automáticamente."]]);
+  if(p==="tickets")return pm("🎫","Sistema de Tickets","Soporte y seguimiento de solicitudes",[["📝","Crear tickets","Solicitudes de soporte desde la app."],["🔔","Notificaciones","Alertas de tickets nuevos o actualizados."],["✅","Estados del ticket","Abierto → En proceso → Resuelto."],["📊","Reportes de soporte","Métricas de tiempo y satisfacción."]]);
+  return pageDash();
+}
+
+function setT(id){
+  if(["ct","ft","st"].includes(id))S.tBot={ct:"chat",ft:"flujos",st:"stats"}[id];
+  if(["calt","ideat","hasht"].includes(id))S.tSoc={calt:"calendar",ideat:"ideas",hasht:"hashtags"}[id];
+  if(["lt","rt"].includes(id))S.tCamp={lt:"list",rt:"roi"}[id];
+  render();
+}
+
+function render(){const ct=document.getElementById("ct");if(ct){ct.innerHTML=getPage();ct.scrollTop=0;}}
+
+function buildNav(){
+  const sn=document.getElementById("sn");
+  sn.innerHTML=MENU.map(m=>`<div class="si${m.id===S.active?" act":""}" onclick="nav('${m.id}')"><span style="font-size:17px;flex-shrink:0">${m.e}</span><span class="sl" style="overflow:hidden;text-overflow:ellipsis">${m.l}</span></div>`).join("");
+}
+
+function nav(id){S.active=id;buildNav();render();}
+
+function openModal(html){document.getElementById("mb").innerHTML=html;document.getElementById("modal").style.display="flex";}
+function closeModal(){document.getElementById("modal").style.display="none";}
+
+function logout(){
+  S.user=null;
+  document.getElementById("app").style.display="none";
+  document.getElementById("login").style.display="flex";
+  document.getElementById("lp").value="";
+  document.getElementById("le").style.display="none";
+}
+
+function toggleSB(){
+  S.sbOpen=!S.sbOpen;
+  const sb=document.getElementById("sb");
+  const slt=document.getElementById("slt");
+  sb.classList.toggle("cls",!S.sbOpen);
+  slt.style.display=S.sbOpen?"block":"none";
+  document.querySelectorAll(".sl").forEach(el=>el.style.display=S.sbOpen?"inline":"none");
+}
+
+function clearN(){document.getElementById("nd").style.display="none";}
+
+function solicitarAcceso(){
+  openModal('<h3 class="sy" style="font-size:17px;font-weight:700;margin-bottom:16px">📞 Solicitar acceso completo</h3><p style="font-size:13px;color:var(--t2);margin-bottom:18px;line-height:1.6">¿Te interesa el Agente Marketing Pro para tu negocio en Lima? Contacta a nuestro equipo.</p><div style="display:flex;flex-direction:column;gap:12px"><a href="https://wa.me/51999000111" target="_blank" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:#25D36615;border:1px solid #25D36630;border-radius:12px;text-decoration:none;color:var(--t)"><span style="font-size:22px">📱</span><div><p style="font-weight:700;font-size:13px">WhatsApp</p><p style="font-size:12px;color:var(--t2)">+51 999 000 111</p></div></a><div style="padding:14px 16px;background:var(--card2);border-radius:12px;border:1px solid var(--brd)"><p style="font-weight:700;font-size:13px;margin-bottom:2px">📧 Email</p><p style="font-size:12px;color:var(--t2)">gonzalo@agentes-ia-lima.com</p></div></div><button class="bp" onclick="closeModal()" style="width:100%;justify-content:center;margin-top:16px">Cerrar</button>');
+}
+
+// AUTO INIT DEMO
+(function(){
+  S.user = {name:"Demo Admin", role:"Admin"};
+  document.getElementById("uav").textContent = "DA";
+  document.getElementById("un").textContent = "Demo";
+  document.getElementById("ur").textContent = "Demo";
+  buildNav();
+  render();
+})();
+
+</script>
+</body>
+</html>

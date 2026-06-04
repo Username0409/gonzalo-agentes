@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: gonzalo-agentes
+    runtime: python
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && python -m uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: WHATSAPP_TOKEN
+        sync: false
+      - key: WHATSAPP_PHONE_ID
+        sync: false
+      - key: WHATSAPP_VERIFY_TOKEN
+        value: gonzalo_agentes_2026
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
