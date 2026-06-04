@@ -155,7 +155,7 @@ function renderLogin() {
         </div>
         <div class="form-group">
           <label>Usuario</label>
-          <input class="form-input" id="login-user" placeholder="admin" value="admin">
+          <input class="form-input" id="login-user" placeholder="Usuario">
         </div>
         <div class="form-group">
           <label>Contraseña</label>
@@ -164,7 +164,7 @@ function renderLogin() {
         <button class="btn-primary" onclick="doLogin()">Iniciar Sesion</button>
         <div id="login-error" class="login-error"></div>
         <p style="text-align:center;margin-top:16px;font-size:11px;color:var(--t3)">
-          Default: admin / GonzaloIA2026
+          Acceso autorizado solamente
         </p>
       </div>
     </div>
